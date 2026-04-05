@@ -1,0 +1,146 @@
+/* ================================================================
+   style.css  —  Ohio Valley Flood Risk Explorer
+   ================================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: #080c14;
+  font-family: 'Courier New', monospace;
+  color: #c8d8e8;
+  height: 100%;
+}
+
+/* ── Header ── */
+#header {
+  padding: 13px 22px 9px;
+  background: #080c14;
+  border-bottom: 1px solid #1a2535;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+#header h1 {
+  font-size: 17px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #00d2ff;
+}
+#header #subtitle {
+  font-size: 14px;
+  color: #8aaabb;
+}
+
+/* ── Map ── */
+#mapid {
+  height: calc(100vh - 95px);
+  width: 100%;
+}
+
+/* ── Controls bar ── */
+#controls {
+  padding: 10px 18px;
+  background: #080c14;
+  border-top: 1px solid #1a2535;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#controls::before {
+  content: 'DATASET:';
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: #3a4a5a;
+}
+
+/* ── Dropdown ── */
+.categorySelect {
+  background-color: #0d1520;
+  color: #00d2ff;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1px solid #00d2ff44;
+  border-radius: 3px;
+  padding: 5px 10px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+  min-width: 300px;
+}
+.categorySelect:hover,
+.categorySelect:focus {
+  border-color: #00d2ff99;
+}
+
+/* ── Leaflet info / tooltip ── */
+.info {
+  padding: 10px 14px;
+  background: rgba(5, 10, 20, 0.92);
+  color: #c8d8e8;
+  font: 13px/1.6 'Courier New', monospace;
+  box-shadow: 0 0 12px rgba(0,0,0,0.6);
+  border-radius: 4px;
+  border: 1px solid #00d2ff22;
+  min-width: 200px;
+}
+.info h4 {
+  margin: 0 0 5px;
+  color: #00d2ff;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.info b {
+  color: #fff;
+  font-size: 14px;
+}
+.info .unit {
+  display: block;
+  font-size: 11px;
+  color: #aaccdd;
+  margin-top: 2px;
+}
+
+/* ── Legend ── */
+.info.legend {
+  line-height: 22px;
+  font-size: 12px;
+}
+.info.legend strong {
+  color: #00d2ff;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.info.legend small {
+  color: #aaccdd;
+  font-size: 11px;
+}
+.info.legend i {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-right: 7px;
+  border: 1px solid #333;
+  vertical-align: middle;
+  opacity: 0.9;
+}
+
+/* ── Leaflet zoom buttons ── */
+.leaflet-control-zoom a {
+  background: #0d1520 !important;
+  color: #4a6a8a !important;
+  border: 1px solid #1a2535 !important;
+}
+.leaflet-control-zoom a:hover {
+  background: #1a2535 !important;
+  color: #fff !important;
+}
+
+/* ── Attribution ── */
+.leaflet-control-attribution {
+  background: rgba(5,10,20,0.8) !important;
+  color: #3a4a5a !important;
+  font-size: 10px !important;
+}
+.leaflet-control-attribution a {
+  color: #4a6a8a !important;
+}

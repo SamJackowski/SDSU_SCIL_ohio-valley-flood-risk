@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ohio Valley Flood Risk Explorer</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="header">
+    <h1>Ohio Valley Risk Explorer</h1>
+    <p id="subtitle">Flood Risk &middot; Poverty &middot; Median Income</p>
+  </div>
+
+  <div id="mapid"></div>
+
+  <div id="controls">
+    <select id="categorySelect" class="categorySelect"></select>
+  </div>
+
+  <script src="sketch.js"></script>
+  <div id="cursor-tooltip"></div>
+</body>
+</html>

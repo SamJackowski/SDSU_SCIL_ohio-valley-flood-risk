@@ -61,6 +61,7 @@ var DATASETS = [
     ramp:   ['#ffffcc','#c7e9b4','#7fcdbb','#1d91c0','#0c2c84'],
     unit:   '% below poverty line',
   },
+<<<<<<< HEAD
   {
     label:  'Median Home Value ($)',
     column: 'MEDIAN_HOME_VALUE',
@@ -68,11 +69,14 @@ var DATASETS = [
     ramp:   ['#d73027','#fc8d59','#fee090','#91bfdb','#4575b4'],
     unit:   '$ median home value',
   },
+=======
+>>>>>>> f8fa7308455cb44bc1909f3fbfb7675023da5bc5
 ];
 
 // Global Variables
 var activeDataset = DATASETS[0];
 var mapInstance, geojsonLayer, infoControl, legendControl;
+<<<<<<< HEAD
 var cursorTip;
 
 
@@ -86,6 +90,11 @@ document.addEventListener('DOMContentLoaded', function () {
     cursorTip.style.top  = (e.clientY - 10) + 'px';
   }); 
   
+=======
+
+document.addEventListener('DOMContentLoaded', function () {
+
+>>>>>>> f8fa7308455cb44bc1909f3fbfb7675023da5bc5
   // Create map centered on Ohio Valley
   mapInstance = L.map('mapid').setView([38.5, -83.5], 6);
 
@@ -206,6 +215,22 @@ function styleFeature(feature) {
   };
 }
 
+<<<<<<< HEAD
+=======
+// Map Interaction
+function highlightFeature(e) {
+  var layer = e.target;
+  layer.setStyle({ weight: 2, color: '#00d2ff', fillOpacity: 0.95 });
+  if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) layer.bringToFront();
+  infoControl.update(layer.feature.properties);
+}
+
+function resetHighlight(e) {
+  geojsonLayer.resetStyle(e.target);
+  infoControl.update();
+}
+
+>>>>>>> f8fa7308455cb44bc1909f3fbfb7675023da5bc5
 function onEachFeature(feature, layer) {
   layer.on({
     mouseover: highlightFeature,
@@ -213,6 +238,7 @@ function onEachFeature(feature, layer) {
   });
 }
 
+<<<<<<< HEAD
 // Map Interaction
 
 function highlightFeature(e) {
@@ -239,6 +265,11 @@ function resetHighlight(e) {
 function refreshMap() {
   if (!geojsonLayer) return;
   if (cursorTip) cursorTip.style.display = 'none'; 
+=======
+// Update Map
+function refreshMap() {
+  if (!geojsonLayer) return;
+>>>>>>> f8fa7308455cb44bc1909f3fbfb7675023da5bc5
   geojsonLayer.eachLayer(function (layer) {
     geojsonLayer.resetStyle(layer);
   });

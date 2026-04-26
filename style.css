@@ -156,3 +156,87 @@ html, body {
   display: none;
   z-index: 9999;
 }
+
+/* City Labels */
+.city-label {
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none !important;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+
+.city-marker {
+  width: 6px;
+  height: 6px;
+  background: #00d2ff;
+  border-radius: 50%;
+  margin: 0 auto 4px;
+  box-shadow: 0 0 8px rgba(0, 210, 255, 0.8);
+}
+
+.city-marker.city-large {
+  width: 8px;
+  height: 8px;
+  box-shadow: 0 0 12px rgba(0, 210, 255, 0.9);
+}
+
+.city-marker.city-medium {
+  width: 6px;
+  height: 6px;
+}
+
+.city-marker.city-small {
+  width: 4px;
+  height: 4px;
+  box-shadow: 0 0 6px rgba(0, 210, 255, 0.7);
+}
+
+.city-name {
+  color: #ffffff;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+
+  text-shadow:
+    -1px -1px 0 #000,
+     1px -1px 0 #000,
+    -1px  1px 0 #000,
+     1px  1px 0 #000,
+     0px  0px 6px rgba(0,0,0,0.6);
+}
+
+/* Control Divider */
+.control-divider {
+  width: 1px;
+  height: 24px;
+  background: #1a2535;
+  margin: 0 12px;
+}
+
+/* City Toggle Button */
+.city-toggle {
+  background-color: #0d1520;
+  color: #00d2ff;
+  font-size: 11px;
+  font-family: inherit;
+  border: 1px solid #00d2ff44;
+  border-radius: 3px;
+  padding: 5px 12px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s;
+  letter-spacing: 0.08em;
+  font-weight: bold;
+}
+
+.city-toggle:hover {
+  border-color: #00d2ff99;
+  background-color: #0f1a28;
+}
+
+.city-toggle.inactive {
+  color: #4a6a8a;
+  border-color: #1a2535;
+}
+

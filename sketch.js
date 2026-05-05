@@ -16,28 +16,28 @@ var DATASETS = [
     label:  'Inland Flood Risk Score',
     column: 'IFLD_RISKS',
     scale:  [0, 20, 40, 60, 80],
-    ramp:   ['#eff3ff','#bdd7e7','#6baed6','#2171b5','#084594'],
+    ramp: ['#fff5f0','#fcbba1','#fc9272','#fb6a4a','#cb181d'],
     unit:   'score (0–100)',
   },
   {
     label:  'Inland Flood Expected Annual Loss',
     column: 'IFLD_EALS',
     scale:  [0, 10, 25, 50, 75],
-    ramp:   ['#ffffb2','#fecc5c','#fd8d3c','#f03b20','#bd0026'],
+    ramp: ['#fff5f0','#fcbba1','#fc9272','#fb6a4a','#cb181d'],  
     unit:   'score (0–100)',
   },
   {
     label:  'Overall Risk Score',
     column: 'RISK_SCORE',
     scale:  [0, 20, 40, 60, 80],
-    ramp:   ['#ffffcc','#a1dab4','#41b6c4','#2c7fb8','#253494'],
+    ramp: ['#fff5f0','#fcbba1','#fc9272','#fb6a4a','#cb181d'],
     unit:   'score (0–100)',
   },
   {
     label:  'Social Vulnerability Score',
     column: 'SOVI_SCORE',
     scale:  [0, 20, 40, 60, 80],
-    ramp:   ['#f7f7f7','#cccccc','#969696','#636363','#252525'],
+    ramp: ['#fff5f0','#fcbba1','#fc9272','#fb6a4a','#cb181d'],
     unit:   'score (0–100)',
   },
   {
@@ -58,7 +58,7 @@ var DATASETS = [
     label:  'Poverty Rate (%)',
     column: 'POVERTY_RATE',
     scale:  [0, 10, 15, 20, 30],
-    ramp:   ['#ffffcc','#c7e9b4','#7fcdbb','#1d91c0','#0c2c84'],
+    ramp: ['#fff5f0','#fcbba1','#fc9272','#fb6a4a','#cb181d'],
     unit:   '% below poverty line',
   },
   {
@@ -79,37 +79,27 @@ var cityLabelsVisible = true;
 
 // Major cities in Ohio Valley Region
 var CITIES = [
-  { name: 'Chicago', lat: 41.8781, lng: -87.6298, size: 'large' },
   { name: 'Indianapolis', lat: 39.7684, lng: -86.1581, size: 'large' },
   { name: 'Columbus', lat: 39.9612, lng: -82.9988, size: 'large' },
   { name: 'Cincinnati', lat: 39.1031, lng: -84.5120, size: 'large' },
   { name: 'Louisville', lat: 38.2527, lng: -85.7585, size: 'large' },
   { name: 'Pittsburgh', lat: 40.4406, lng: -79.9959, size: 'large' },
   { name: 'Cleveland', lat: 41.4993, lng: -81.6944, size: 'large' },
-  { name: 'Toledo', lat: 41.6528, lng: -83.5379, size: 'medium' },
   { name: 'Akron', lat: 41.0814, lng: -81.5190, size: 'medium' },
   { name: 'Dayton', lat: 39.7589, lng: -84.1916, size: 'medium' },
   { name: 'Lexington', lat: 38.0406, lng: -84.5037, size: 'medium' },
   { name: 'Charleston', lat: 38.3498, lng: -81.6326, size: 'medium' },
   { name: 'Huntington', lat: 38.4192, lng: -82.4452, size: 'medium' },
   { name: 'Evansville', lat: 37.9716, lng: -87.5711, size: 'medium' },
-  { name: 'Fort Wayne', lat: 41.0793, lng: -85.1394, size: 'medium' },
-  { name: 'South Bend', lat: 41.6764, lng: -86.2520, size: 'medium' },
   { name: 'Erie', lat: 42.1292, lng: -80.0851, size: 'medium' },
   { name: 'Youngstown', lat: 41.0998, lng: -80.6495, size: 'medium' },
   { name: 'Canton', lat: 40.7989, lng: -81.3784, size: 'medium' },
   { name: 'Bloomington', lat: 39.1653, lng: -86.5264, size: 'medium' },
-  { name: 'Lafayette', lat: 40.4167, lng: -86.8753, size: 'medium' },
   { name: 'Muncie', lat: 40.1934, lng: -85.3864, size: 'medium' },
   { name: 'Bowling Green', lat: 36.9685, lng: -86.4808, size: 'medium' },
   { name: 'Wheeling', lat: 40.0640, lng: -80.7209, size: 'small' },
   { name: 'Parkersburg', lat: 39.2667, lng: -81.5615, size: 'small' },
-  { name: 'Peoria', lat: 40.6936, lng: -89.5890, size: 'small' },
   { name: 'Owensboro', lat: 37.7742, lng: -87.1117, size: 'small' },
-  { name: 'Rockford', lat: 42.2711, lng: -89.0940, size: 'small' },
-  { name: 'Aurora', lat: 41.7606, lng: -88.3201, size: 'small' },
-  { name: 'Joliet', lat: 41.5250, lng: -88.0817, size: 'small' },
-  { name: 'Lima', lat: 40.7426, lng: -84.1052, size: 'small' },
   { name: 'Morgantown', lat: 39.6295, lng: -79.9559, size: 'small' },
   { name: 'Carbondale', lat: 37.7273, lng: -89.2168, size: 'small' }
 ];
@@ -143,6 +133,13 @@ mapInstance.getPane('cityPane').style.zIndex = 700;
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
     maxZoom: 19
   }).addTo(mapInstance);
+
+  L.control.scale({
+  position: 'bottomleft',
+  imperial: true,
+  metric: false,
+  maxWidth: 140
+}).addTo(mapInstance);
 
   // Info box
   infoControl = L.control({ position: 'topright' });
@@ -178,6 +175,7 @@ mapInstance.getPane('cityPane').style.zIndex = 700;
   };
   legendControl.addTo(mapInstance);
 
+
   // Dropdown
   var select = document.getElementById('categorySelect');
 
@@ -191,27 +189,44 @@ mapInstance.getPane('cityPane').style.zIndex = 700;
   select.addEventListener('change', function () {
     activeDataset = DATASETS[parseInt(this.value)];
     refreshMap();
+
   });
 
   // Load GeoJSON
-  fetch('OhioValleyTractAndDataSImplified.json')
+  fetch('ohio_river_valley_final.geojson')
     .then(function (r) { return r.json(); })
     .then(function (data) {
       geojsonLayer = L.geoJson(data, {
-        pane: 'tractsPane', // <-- ADDED
+        pane: 'tractsPane', 
         style: styleFeature,
         onEachFeature: onEachFeature,
       }).addTo(mapInstance);
+
+      mapInstance.fitBounds(geojsonLayer.getBounds(), {
+      padding: [30, 30]
+      });
+
     })
     .catch(function (err) {
       console.error('Failed to load GeoJSON:', err);
     });
+
+
 
   // Load Ohio River
   var riverLayer;
   fetch('ohio_river.geojson')
     .then(function (r) { return r.json(); })
     .then(function (data) {
+        L.geoJson(data, {
+            pane: 'riverPane',
+            style: {
+              color: '#00c3ff',
+              weight: 12,
+              opacity: 0.18
+            }
+          }).addTo(mapInstance);
+
       riverLayer = L.geoJson(data, {
         pane: 'riverPane', // <-- ADDED
         style: {
@@ -231,6 +246,14 @@ mapInstance.getPane('cityPane').style.zIndex = 700;
     this.textContent = cityLabelsVisible ? '🏙️ HIDE CITIES' : '🏙️ SHOW CITIES';
     this.classList.toggle('inactive');
     updateCityLabelsVisibility();
+  });
+
+  document.getElementById('resetViewBtn').addEventListener('click', function() {
+  if (geojsonLayer) {
+    mapInstance.fitBounds(geojsonLayer.getBounds(), {
+      padding: [30, 30]
+     });
+    }
   });
 
 });
@@ -255,7 +278,7 @@ function styleFeature(feature) {
     weight:      0.4,
     opacity:     1,
     color:       '#0a0a14',
-    fillOpacity: 0.56,
+    fillOpacity: 0.7,
   };
 }
 

@@ -1,0 +1,17 @@
+[33ma7ec528[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Simplified Ohio River Valley GeoJSON
+ ohio_river_valley_final.geojson | 14009 [32m+++++++++++++++++++[m[31m-------------------[m
+ 1 file changed, 7002 insertions(+), 7007 deletions(-)
+[33m1b96f23[m  UI adjustments, filtered region
+ index.html                      |    9 [32m+[m[31m-[m
+ ohio_river_valley_final.geojson | 7007 [32m+++++++++++++++++++++++++++++++++++++++[m
+ sketch.js                       |   59 [32m+[m[31m-[m
+ style.css                       |   81 [32m+[m[31m-[m
+ 4 files changed, 7111 insertions(+), 45 deletions(-)
+[33mddf99e4[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Update README.md
+ README.md | 2 [32m+[m[31m-[m
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+[33me9b4c5c[m Added cities and modified opacity
+ index.html |   5 [32m+++[m
+ sketch.js  | 106 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-----[m
+ style.css  |  84 [32m++++++++++++++++++++++++++++++++++++++++++++++++[m
+ 3 files changed, 187 insertions(+), 8 deletions(-)

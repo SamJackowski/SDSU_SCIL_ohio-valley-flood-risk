@@ -1,5 +1,11 @@
-/*  style.css  —  Ohio Valley Flood Risk Explorer*/
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* style.css — Ohio Valley Flood Risk Explorer */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 html, body {
   background: #080c14;
   font-family: 'Courier New', monospace;
@@ -7,33 +13,42 @@ html, body {
   height: 100%;
 }
 
-/*  Header  */
+/* Header */
 #header {
   padding: 13px 22px 9px;
   background: #080c14;
   border-bottom: 1px solid #1a2535;
   display: flex;
-  align-items: baseline;
-  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
 }
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+}
+
 #header h1 {
   font-size: 17px;
-  letter-spacing: .1em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #00d2ff;
 }
-#header #subtitle {
+
+#subtitle {
   font-size: 14px;
   color: #8aaabb;
+  margin-top: 2px;
 }
 
-/*  Map  */
+
+/* Map */
 #mapid {
   height: calc(100vh - 95px);
   width: 100%;
 }
 
-/*  Controls bar  */
+/* Controls bar */
 #controls {
   padding: 10px 18px;
   background: #080c14;
@@ -42,14 +57,15 @@ html, body {
   align-items: center;
   gap: 10px;
 }
+
 #controls::before {
   content: 'DATASET:';
   font-size: 11px;
-  letter-spacing: .1em;
+  letter-spacing: 0.1em;
   color: #3a4a5a;
 }
 
-/*  Dropdown  */
+/* Dropdown */
 .categorySelect {
   background-color: #0d1520;
   color: #00d2ff;
@@ -63,33 +79,37 @@ html, body {
   transition: border-color 0.2s;
   min-width: 300px;
 }
+
 .categorySelect:hover,
 .categorySelect:focus {
   border-color: #00d2ff99;
 }
 
-/*  Leaflet info / tooltip  */
+/* Info boxes */
 .info {
   padding: 10px 14px;
   background: rgba(5, 10, 20, 0.92);
   color: #c8d8e8;
   font: 13px/1.6 'Courier New', monospace;
-  box-shadow: 0 0 12px rgba(0,0,0,0.6);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
   border-radius: 4px;
   border: 1px solid #00d2ff22;
   min-width: 200px;
 }
+
 .info h4 {
   margin: 0 0 5px;
   color: #00d2ff;
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
 }
+
 .info b {
   color: #fff;
   font-size: 14px;
 }
+
 .info .unit {
   display: block;
   font-size: 11px;
@@ -97,21 +117,24 @@ html, body {
   margin-top: 2px;
 }
 
-/*  Legend */
+/* Legend */
 .info.legend {
   line-height: 22px;
   font-size: 12px;
 }
+
 .info.legend strong {
   color: #00d2ff;
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: .06em;
+  letter-spacing: 0.06em;
 }
+
 .info.legend small {
   color: #aaccdd;
   font-size: 11px;
 }
+
 .info.legend i {
   display: inline-block;
   width: 18px;
@@ -122,28 +145,29 @@ html, body {
   opacity: 0.9;
 }
 
-/* Leaflet zoom buttons  */
+/* Leaflet controls */
 .leaflet-control-zoom a {
   background: #0d1520 !important;
   color: #4a6a8a !important;
   border: 1px solid #1a2535 !important;
 }
+
 .leaflet-control-zoom a:hover {
   background: #1a2535 !important;
   color: #fff !important;
 }
 
-/* Attribution  */
 .leaflet-control-attribution {
-  background: rgba(5,10,20,0.8) !important;
+  background: rgba(5, 10, 20, 0.8) !important;
   color: #3a4a5a !important;
   font-size: 10px !important;
 }
+
 .leaflet-control-attribution a {
   color: #4a6a8a !important;
 }
 
-/* Cursor Tooltip */
+/* Cursor tooltip */
 #cursor-tooltip {
   position: fixed;
   background: rgba(5, 10, 20, 0.85);
@@ -157,7 +181,7 @@ html, body {
   z-index: 9999;
 }
 
-/* City Labels */
+/* City labels */
 .city-label {
   text-align: center;
   white-space: nowrap;
@@ -197,16 +221,15 @@ html, body {
   font-family: 'Courier New', monospace;
   font-weight: bold;
   letter-spacing: 0.05em;
-
   text-shadow:
     -1px -1px 0 #000,
      1px -1px 0 #000,
     -1px  1px 0 #000,
      1px  1px 0 #000,
-     0px  0px 6px rgba(0,0,0,0.6);
+     0 0 6px rgba(0, 0, 0, 0.6);
 }
 
-/* Control Divider */
+/* Bottom controls */
 .control-divider {
   width: 1px;
   height: 24px;
@@ -214,7 +237,6 @@ html, body {
   margin: 0 12px;
 }
 
-/* City Toggle Button */
 .city-toggle {
   background-color: #0d1520;
   color: #00d2ff;
@@ -233,10 +255,19 @@ html, body {
 .city-toggle:hover {
   border-color: #00d2ff99;
   background-color: #0f1a28;
+  box-shadow: 0 0 6px rgba(0, 210, 255, 0.25);
 }
 
 .city-toggle.inactive {
   color: #4a6a8a;
   border-color: #1a2535;
+}
+
+.leaflet-control-scale-line {
+  background: rgba(5, 10, 20, 0.85) !important;
+  color: #c8d8e8 !important;
+  border: 1px solid #00d2ff44 !important;
+  border-top: none !important;
+  font-family: 'Courier New', monospace !important;
 }
 

@@ -15,3 +15,9 @@
  sketch.js  | 106 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-----[m
  style.css  |  84 [32m++++++++++++++++++++++++++++++++++++++++++++++++[m
  3 files changed, 187 insertions(+), 8 deletions(-)
+[33m115d287[m Restore simplified GeoJSON
+ OhioValleyTractAndDataSImplified.json | 40257 [32m+++++++++++[m[31m---------------------[m
+ index.html                            |     3 [31m-[m
+ sketch.js                             |    31 [31m-[m
+ style.css                             |    41 [31m-[m
+ 4 files changed, 13416 insertions(+), 26916 deletions(-)

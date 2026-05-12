@@ -84,14 +84,12 @@ var CITIES = [
   { name: 'Cincinnati', lat: 39.1031, lng: -84.5120, size: 'large' },
   { name: 'Louisville', lat: 38.2527, lng: -85.7585, size: 'large' },
   { name: 'Pittsburgh', lat: 40.4406, lng: -79.9959, size: 'large' },
-  { name: 'Cleveland', lat: 41.4993, lng: -81.6944, size: 'large' },
   { name: 'Akron', lat: 41.0814, lng: -81.5190, size: 'medium' },
   { name: 'Dayton', lat: 39.7589, lng: -84.1916, size: 'medium' },
   { name: 'Lexington', lat: 38.0406, lng: -84.5037, size: 'medium' },
   { name: 'Charleston', lat: 38.3498, lng: -81.6326, size: 'medium' },
   { name: 'Huntington', lat: 38.4192, lng: -82.4452, size: 'medium' },
   { name: 'Evansville', lat: 37.9716, lng: -87.5711, size: 'medium' },
-  { name: 'Erie', lat: 42.1292, lng: -80.0851, size: 'medium' },
   { name: 'Youngstown', lat: 41.0998, lng: -80.6495, size: 'medium' },
   { name: 'Canton', lat: 40.7989, lng: -81.3784, size: 'medium' },
   { name: 'Bloomington', lat: 39.1653, lng: -86.5264, size: 'medium' },
@@ -100,8 +98,7 @@ var CITIES = [
   { name: 'Wheeling', lat: 40.0640, lng: -80.7209, size: 'small' },
   { name: 'Parkersburg', lat: 39.2667, lng: -81.5615, size: 'small' },
   { name: 'Owensboro', lat: 37.7742, lng: -87.1117, size: 'small' },
-  { name: 'Morgantown', lat: 39.6295, lng: -79.9559, size: 'small' },
-  { name: 'Carbondale', lat: 37.7273, lng: -89.2168, size: 'small' }
+  { name: 'Morgantown', lat: 39.6295, lng: -79.9559, size: 'small' }
 ];
 
 

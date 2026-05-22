@@ -68,6 +68,13 @@ var DATASETS = [
     ramp:   ['#d73027','#fc8d59','#fee090','#91bfdb','#4575b4'],
     unit:   '$ median home value',
   },
+  {
+  label: 'Flood Vulnerability Index',
+  column: 'FLOOD_VULN_INDEX',
+  scale: [0, 20, 40, 60, 80],
+  ramp: ['#fff5f0','#fcbba1','#fc9272','#ef3b2c','#99000d'],
+  unit: 'composite vulnerability score (0–100)',
+},
 ];
 
 // Global Variables

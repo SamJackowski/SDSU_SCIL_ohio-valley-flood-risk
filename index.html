@@ -3,33 +3,109 @@
 <head>
   <meta charset="utf-8"/>
   <title>Ohio Valley Flood Risk Explorer</title>
+
+  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
+  <!-- Header -->
   <div id="header">
     <div class="header-left">
       <h1>Ohio Valley Risk Explorer</h1>
-      <p id="subtitle">Flood Risk · Poverty · Median Income</p>
+      <p id="subtitle">
+        Flood Risk · Poverty · Median Income · Vulnerability
+      </p>
     </div>
+  </div>
 
+  <!-- Main Layout -->
+  <div id="main">
+
+    <!-- Map -->
+    <div id="mapid"></div>
+
+    <!-- Dashboard -->
+    <aside id="dashboard">
+
+      <h2>Regional Summary</h2>
+
+      <!-- Stats -->
+      <div class="stat-card">
+        <span>Average Flood Vulnerability</span>
+        <strong id="avgVuln">--</strong>
+      </div>
+
+      <div class="stat-card">
+        <span>Average Poverty Rate</span>
+        <strong id="avgPoverty">--</strong>
+      </div>
+
+      <div class="stat-card">
+        <span>Highest Vulnerability Tract</span>
+        <strong id="topRisk">--</strong>
+      </div>
+
+      <!-- Charts -->
+      <canvas id="vulnerabilityChart"></canvas>
+
+      <canvas id="povertyChart"></canvas>
+
+    </aside>
 
   </div>
 
-  <div id="mapid"></div>
-
+  <!-- Bottom Controls -->
   <div id="controls">
+
     <select id="categorySelect" class="categorySelect"></select>
-    
+
     <div class="control-divider"></div>
-    
-    <button id="cityToggle" class="city-toggle">🏙️ HIDE CITIES</button>
-    
-    <button id="resetViewBtn" class="city-toggle">RESET VIEW</button>
+
+    <button id="cityToggle" class="city-toggle">
+      🏙️ HIDE CITIES
+    </button>
+
+    <button id="resetViewBtn" class="city-toggle">
+      RESET VIEW
+    </button>
+
+    <button id="helpBtn" class="city-toggle">
+      HELP
+    </button>
+
   </div>
 
-  <script src="sketch.js"></script>
+  <!-- Tooltip -->
   <div id="cursor-tooltip"></div>
+
+    <div id="helpModal" class="help-modal hidden">
+    <div class="help-content">
+      <button id="closeHelpBtn" class="help-close">×</button>
+      <h2>Dataset Guide</h2>
+
+      <p><b>Inland Flood Risk Score:</b> FEMA score estimating relative inland flood risk.</p>
+      <p><b>Inland Flood Expected Annual Loss:</b> FEMA estimate of annualized flood loss risk.</p>
+      <p><b>Overall Risk Score:</b> FEMA composite natural hazard risk score.</p>
+      <p><b>Flood Vulnerability Index:</b> Custom index combining flood risk, poverty, income, and resilience.</p>
+      <p><b>Social Vulnerability Score:</b> FEMA score for community sensitivity to hazards.</p>
+      <p><b>Community Resilience Score:</b> FEMA score for ability to prepare, respond, and recover.</p>
+      <p><b>Median Household Income:</b> Census tract median household income.</p>
+      <p><b>Poverty Rate:</b> Percent of population below poverty level.</p>
+      <p><b>Median Home Value:</b> Census tract median home value.</p>
+    </div>
+  </div>
+
+  <!-- Main JS -->
+  <script src="sketch.js?v=6"></script>
+
 </body>
 </html>

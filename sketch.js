@@ -210,6 +210,8 @@ mapInstance.getPane('cityPane').style.zIndex = 700;
       padding: [30, 30]
       });
 
+      updateDashboard(data);
+
     })
     .catch(function (err) {
       console.error('Failed to load GeoJSON:', err);
@@ -260,6 +262,20 @@ mapInstance.getPane('cityPane').style.zIndex = 700;
     }
   });
 
+
+  document.getElementById('helpBtn').addEventListener('click', function() {
+  document.getElementById('helpModal').classList.remove('hidden');
+});
+
+  document.getElementById('closeHelpBtn').addEventListener('click', function() {
+    document.getElementById('helpModal').classList.add('hidden');
+  });
+
+  document.getElementById('helpModal').addEventListener('click', function(e) {
+    if (e.target.id === 'helpModal') {
+      this.classList.add('hidden');
+    }
+  });
 });
 
 // Style
@@ -376,4 +392,106 @@ function updateCityLabelsVisibility() {
   } else {
     mapInstance.removeLayer(cityLabelsLayer);
   }
+}
+
+function getValidValues(features, column) {
+  return features
+    .map(function(f) { return Number(f.properties[column]); })
+    .filter(function(v) { return !isNaN(v) && v >= 0; });
+}
+
+function average(values) {
+  if (!values.length) return null;
+  return values.reduce(function(a, b) { return a + b; }, 0) / values.length;
+}
+
+function makeBins(values, breaks) {
+  var counts = new Array(breaks.length - 1).fill(0);
+
+  values.forEach(function(v) {
+    for (var i = 0; i < breaks.length - 1; i++) {
+      if (v >= breaks[i] && v < breaks[i + 1]) {
+        counts[i]++;
+        return;
+      }
+    }
+    if (v >= breaks[breaks.length - 2]) {
+      counts[counts.length - 1]++;
+    }
+  });
+
+  return counts;
+}
+
+function updateDashboard(data) {
+  var features = data.features;
+
+  var vulnValues = getValidValues(features, 'FLOOD_VULN_INDEX');
+  var povertyValues = getValidValues(features, 'POVERTY_RATE');
+
+  var avgVuln = average(vulnValues);
+  var avgPoverty = average(povertyValues);
+
+  document.getElementById('avgVuln').textContent =
+    avgVuln != null ? avgVuln.toFixed(1) : 'No data';
+
+  document.getElementById('avgPoverty').textContent =
+    avgPoverty != null ? avgPoverty.toFixed(1) + '%' : 'No data';
+
+  var topFeature = features
+    .filter(function(f) {
+      return !isNaN(Number(f.properties.FLOOD_VULN_INDEX));
+    })
+    .sort(function(a, b) {
+      return Number(b.properties.FLOOD_VULN_INDEX) - Number(a.properties.FLOOD_VULN_INDEX);
+    })[0];
+
+  document.getElementById('topRisk').textContent = topFeature
+    ? (topFeature.properties.COUNTY || topFeature.properties.GEOID)
+    : 'No data';
+
+  makeVulnerabilityChart(vulnValues);
+  makePovertyChart(povertyValues);
+}
+
+function makeVulnerabilityChart(values) {
+  new Chart(document.getElementById('vulnerabilityChart'), {
+    type: 'bar',
+    data: {
+      labels: ['0–20', '20–40', '40–60', '60–80', '80–100'],
+      datasets: [{
+        label: 'Tracts by Vulnerability',
+        data: makeBins(values, [0, 20, 40, 60, 80, 100]),
+        backgroundColor: '#ef3b2c'
+      }]
+    },
+    options: {
+      plugins: { legend: { labels: { color: '#c8d8e8' } } },
+      scales: {
+        x: { ticks: { color: '#c8d8e8' }, grid: { color: '#1a2535' } },
+        y: { ticks: { color: '#c8d8e8' }, grid: { color: '#1a2535' } }
+      }
+    }
+  });
+}
+
+function makePovertyChart(values) {
+  new Chart(document.getElementById('povertyChart'), {
+    type: 'bar',
+    data: {
+      labels: ['0–10%', '10–15%', '15–20%', '20–30%', '30%+'],
+      datasets: [{
+        label: 'Tracts by Poverty Rate',
+        data: makeBins(values, [0, 10, 15, 20, 30, 100]),
+        backgroundColor: '#fb6a4a'
+      }]
+    },
+    options: {
+      plugins: { legend: { labels: { color: '#c8d8e8' } } },
+      scales: {
+        x: { ticks: { color: '#c8d8e8' }, grid: { color: '#1a2535' } },
+        y: { ticks: { color: '#c8d8e8' }, grid: { color: '#1a2535' } }
+      }
+    }
+  });
 }

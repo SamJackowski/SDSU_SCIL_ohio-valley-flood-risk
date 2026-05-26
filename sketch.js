@@ -18,6 +18,8 @@ var DATASETS = [
     scale:  [0, 20, 40, 60, 80],
     ramp: ['#fff5f0','#fcbba1','#fc9272','#fb6a4a','#cb181d'],
     unit:   'score (0–100)',
+    description: "FEMA score estimating relative inland flood risk.",
+
   },
   {
     label:  'Inland Flood Expected Annual Loss',
@@ -25,6 +27,7 @@ var DATASETS = [
     scale:  [0, 10, 25, 50, 75],
     ramp: ['#fff5f0','#fcbba1','#fc9272','#fb6a4a','#cb181d'],  
     unit:   'score (0–100)',
+    description: "FEMA estimate of annualized flood loss risk.",
   },
   {
     label:  'Overall Risk Score',
@@ -32,6 +35,7 @@ var DATASETS = [
     scale:  [0, 20, 40, 60, 80],
     ramp: ['#fff5f0','#fcbba1','#fc9272','#fb6a4a','#cb181d'],
     unit:   'score (0–100)',
+    description:  "FEMA composite natural hazard risk score.", 
   },
   {
     label:  'Social Vulnerability Score',
@@ -39,6 +43,7 @@ var DATASETS = [
     scale:  [0, 20, 40, 60, 80],
     ramp: ['#fff5f0','#fcbba1','#fc9272','#fb6a4a','#cb181d'],
     unit:   'score (0–100)',
+    description:  "FEMA score for community sensitivity to hazards.", 
   },
   {
     label:  'Community Resilience Score',
@@ -46,6 +51,7 @@ var DATASETS = [
     scale:  [0, 20, 40, 60, 80],
     ramp:   ['#253494','#2c7fb8','#41b6c4','#a1dab4','#ffffcc'],
     unit:   'score (0–100, higher = more resilient)',
+    description:  "FEMA score for ability to prepare, respond, and recover.", 
   },
   {
     label:  'Median Household Income ($)',
@@ -53,6 +59,7 @@ var DATASETS = [
     scale:  [0, 40000, 55000, 70000, 90000],
     ramp:   ['#d73027','#fc8d59','#fee090','#91bfdb','#4575b4'],
     unit:   '$ median household income',
+    description:  "Census tract median household income.", 
   },
   {
     label:  'Poverty Rate (%)',
@@ -60,6 +67,7 @@ var DATASETS = [
     scale:  [0, 10, 15, 20, 30],
     ramp: ['#fff5f0','#fcbba1','#fc9272','#fb6a4a','#cb181d'],
     unit:   '% below poverty line',
+    description:  "Percent of population below poverty level.", 
   },
   {
     label:  'Median Home Value ($)',
@@ -67,6 +75,7 @@ var DATASETS = [
     scale:  [0, 100000, 175000, 250000, 350000],
     ramp:   ['#d73027','#fc8d59','#fee090','#91bfdb','#4575b4'],
     unit:   '$ median home value',
+    description:  "Census tract median home value.", 
   },
   {
   label: 'Flood Vulnerability Index',
@@ -74,6 +83,7 @@ var DATASETS = [
   scale: [0, 20, 40, 60, 80],
   ramp: ['#fff5f0','#fcbba1','#fc9272','#ef3b2c','#99000d'],
   unit: 'composite vulnerability score (0–100)',
+  description: 'Composite measure combining flood hazard, poverty, income, and resilience.',
 },
 ];
 
@@ -193,6 +203,7 @@ mapInstance.getPane('cityPane').style.zIndex = 700;
   select.addEventListener('change', function () {
     activeDataset = DATASETS[parseInt(this.value)];
     refreshMap();
+    updateDashboard(geojsonLayer.toGeoJSON());
 
   });
 
@@ -423,71 +434,86 @@ function makeBins(values, breaks) {
   return counts;
 }
 
+var datasetChart = null;
+
 function updateDashboard(data) {
   var features = data.features;
 
-  var vulnValues = getValidValues(features, 'FLOOD_VULN_INDEX');
-  var povertyValues = getValidValues(features, 'POVERTY_RATE');
+  var values = features
+    .map(function(f) { return Number(f.properties[activeDataset.column]); })
+    .filter(function(v) { return !isNaN(v) && v >= 0; });
 
-  var avgVuln = average(vulnValues);
-  var avgPoverty = average(povertyValues);
+  if (!values.length) return;
 
-  document.getElementById('avgVuln').textContent =
-    avgVuln != null ? avgVuln.toFixed(1) : 'No data';
-
-  document.getElementById('avgPoverty').textContent =
-    avgPoverty != null ? avgPoverty.toFixed(1) + '%' : 'No data';
+  var avg = average(values);
+  var max = Math.max(...values);
+  var min = Math.min(...values);
 
   var topFeature = features
     .filter(function(f) {
-      return !isNaN(Number(f.properties.FLOOD_VULN_INDEX));
+      return !isNaN(Number(f.properties[activeDataset.column]));
     })
     .sort(function(a, b) {
-      return Number(b.properties.FLOOD_VULN_INDEX) - Number(a.properties.FLOOD_VULN_INDEX);
+      return Number(b.properties[activeDataset.column]) -
+             Number(a.properties[activeDataset.column]);
     })[0];
 
-  document.getElementById('topRisk').textContent = topFeature
+  document.getElementById('dashboardTitle').textContent = activeDataset.label;
+  document.getElementById('dashboardDescription').textContent = activeDataset.description;
+  document.getElementById('dashboardAverage').textContent = avg.toFixed(1);
+  document.getElementById('dashboardMaximum').textContent = max.toFixed(1);
+  document.getElementById('dashboardMinimum').textContent = min.toFixed(1);
+
+  document.getElementById('dashboardTopFeature').textContent = topFeature
     ? (topFeature.properties.COUNTY || topFeature.properties.GEOID)
     : 'No data';
 
-  makeVulnerabilityChart(vulnValues);
-  makePovertyChart(povertyValues);
+  makeDatasetChart(values);
 }
 
-function makeVulnerabilityChart(values) {
-  new Chart(document.getElementById('vulnerabilityChart'), {
+function makeDatasetChart(values) {
+  var ctx = document.getElementById('datasetChart');
+
+  if (datasetChart) {
+    datasetChart.destroy();
+  }
+
+  var labels;
+  var breaks;
+
+  if (activeDataset.column === 'MEDIAN_INCOME') {
+    breaks = [0, 40000, 55000, 70000, 90000, Infinity];
+    labels = ['$0–40k', '$40k–55k', '$55k–70k', '$70k–90k', '$90k+'];
+
+  } else if (activeDataset.column === 'MEDIAN_HOME_VALUE') {
+    breaks = [0, 100000, 175000, 250000, 350000, Infinity];
+    labels = ['$0–100k', '$100k–175k', '$175k–250k', '$250k–350k', '$350k+'];
+
+  } else if (activeDataset.column === 'POVERTY_RATE') {
+    breaks = [0, 10, 15, 20, 30, Infinity];
+    labels = ['0–10%', '10–15%', '15–20%', '20–30%', '30%+'];
+
+  } else {
+    breaks = [0, 20, 40, 60, 80, Infinity];
+    labels = ['0–20', '20–40', '40–60', '60–80', '80+'];
+  }
+
+  datasetChart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['0–20', '20–40', '40–60', '60–80', '80–100'],
+      labels: labels,
       datasets: [{
-        label: 'Tracts by Vulnerability',
-        data: makeBins(values, [0, 20, 40, 60, 80, 100]),
+        label: activeDataset.label,
+        data: makeBins(values, breaks),
         backgroundColor: '#ef3b2c'
       }]
     },
     options: {
-      plugins: { legend: { labels: { color: '#c8d8e8' } } },
-      scales: {
-        x: { ticks: { color: '#c8d8e8' }, grid: { color: '#1a2535' } },
-        y: { ticks: { color: '#c8d8e8' }, grid: { color: '#1a2535' } }
-      }
-    }
-  });
-}
-
-function makePovertyChart(values) {
-  new Chart(document.getElementById('povertyChart'), {
-    type: 'bar',
-    data: {
-      labels: ['0–10%', '10–15%', '15–20%', '20–30%', '30%+'],
-      datasets: [{
-        label: 'Tracts by Poverty Rate',
-        data: makeBins(values, [0, 10, 15, 20, 30, 100]),
-        backgroundColor: '#fb6a4a'
-      }]
-    },
-    options: {
-      plugins: { legend: { labels: { color: '#c8d8e8' } } },
+      plugins: {
+        legend: {
+          labels: { color: '#c8d8e8' }
+        }
+      },
       scales: {
         x: { ticks: { color: '#c8d8e8' }, grid: { color: '#1a2535' } },
         y: { ticks: { color: '#c8d8e8' }, grid: { color: '#1a2535' } }

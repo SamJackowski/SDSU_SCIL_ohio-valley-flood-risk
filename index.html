@@ -17,77 +17,60 @@
 
 <body>
 
-  <!-- Header -->
   <div id="header">
     <div class="header-left">
       <h1>Ohio Valley Risk Explorer</h1>
-      <p id="subtitle">
-        Flood Risk · Poverty · Median Income · Vulnerability
-      </p>
+      <p id="subtitle">Flood Risk · Poverty · Median Income · Vulnerability</p>
     </div>
   </div>
 
-  <!-- Main Layout -->
   <div id="main">
-
-    <!-- Map -->
     <div id="mapid"></div>
 
-    <!-- Dashboard -->
     <aside id="dashboard">
+      <h2 id="dashboardTitle">Dataset Summary</h2>
 
-      <h2>Regional Summary</h2>
+      <p id="dashboardDescription">
+        Select a dataset to view regional statistics and distribution.
+      </p>
 
-      <!-- Stats -->
       <div class="stat-card">
-        <span>Average Flood Vulnerability</span>
-        <strong id="avgVuln">--</strong>
+        <span>Average</span>
+        <strong id="dashboardAverage">--</strong>
       </div>
 
       <div class="stat-card">
-        <span>Average Poverty Rate</span>
-        <strong id="avgPoverty">--</strong>
+        <span>Maximum</span>
+        <strong id="dashboardMaximum">--</strong>
       </div>
 
       <div class="stat-card">
-        <span>Highest Vulnerability Tract</span>
-        <strong id="topRisk">--</strong>
+        <span>Minimum</span>
+        <strong id="dashboardMinimum">--</strong>
       </div>
 
-      <!-- Charts -->
-      <canvas id="vulnerabilityChart"></canvas>
+      <div class="stat-card">
+        <span>Highest Tract / Area</span>
+        <strong id="dashboardTopFeature">--</strong>
+      </div>
 
-      <canvas id="povertyChart"></canvas>
-
+      <canvas id="datasetChart"></canvas>
     </aside>
-
   </div>
 
-  <!-- Bottom Controls -->
   <div id="controls">
-
     <select id="categorySelect" class="categorySelect"></select>
 
     <div class="control-divider"></div>
 
-    <button id="cityToggle" class="city-toggle">
-      🏙️ HIDE CITIES
-    </button>
-
-    <button id="resetViewBtn" class="city-toggle">
-      RESET VIEW
-    </button>
-
-    <button id="helpBtn" class="city-toggle">
-      HELP
-    </button>
-
+    <button id="cityToggle" class="city-toggle">🏙️ HIDE CITIES</button>
+    <button id="resetViewBtn" class="city-toggle">RESET VIEW</button>
+    <button id="helpBtn" class="city-toggle">HELP</button>
   </div>
 
-  <!-- Tooltip -->
   <div id="cursor-tooltip"></div>
 
-    <div id="helpModal" class="help-modal hidden">
+  <div id="helpModal" class="help-modal hidden">
     <div class="help-content">
       <button id="closeHelpBtn" class="help-close">×</button>
       <h2>Dataset Guide</h2>
@@ -104,8 +87,7 @@
     </div>
   </div>
 
-  <!-- Main JS -->
-  <script src="sketch.js?v=6"></script>
+  <script src="sketch.js?v=8"></script>
 
 </body>
 </html>

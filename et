@@ -21,3 +21,25 @@
  sketch.js                             |    31 [31m-[m
  style.css                             |    41 [31m-[m
  4 files changed, 13416 insertions(+), 26916 deletions(-)
+[33m0ba7755[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Replace oversized GeoJSON with simplified version
+ ohio_river_valley_final.geojson | 14009 [32m+++++++++++++++++++[m[31m-------------------[m
+ 1 file changed, 7002 insertions(+), 7007 deletions(-)
+[33m8f23b58[m Add hospital layer and expanded dashboard datasets
+ index.html                                   |     1 [32m+[m
+ ohio_river_valley_final.geojson              | 14009 [32m+++++++++++++[m[31m------------[m
+ ohio_river_valley_hospitals_filtered.geojson |   697 [32m++[m
+ sketch.js                                    |   122 [32m+[m[31m-[m
+ 4 files changed, 7825 insertions(+), 7004 deletions(-)
+[33m79cba28[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Improved dashboard functionality
+ index.html |  60 [32m++++++++++++[m[31m----------------------[m
+ sketch.js  | 108 [32m++++++++++++++++++++++++++++++++++++++[m[31m-----------------------[m
+ 2 files changed, 88 insertions(+), 80 deletions(-)
+[33mcfa6dbf[m Add dashboard and dataset help modal
+ index.html |  96 [32m+++++++++++++++++++++++++[m[31m---[m
+ sketch.js  | 118 [32m++++++++++++++++++++++++++++++++++[m
+ style.css  | 211 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m---[m
+ 3 files changed, 406 insertions(+), 19 deletions(-)
+[33m526214a[m Add flood vulnerability index
+ ohio_river_valley_final.geojson | 13219 [32m++++++++++++++++++++[m[31m------------------[m
+ sketch.js                       |     7 [32m+[m
+ 2 files changed, 7007 insertions(+), 6219 deletions(-)

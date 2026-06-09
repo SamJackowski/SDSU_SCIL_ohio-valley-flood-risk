@@ -84,7 +84,55 @@ var DATASETS = [
   ramp: ['#fff5f0','#fcbba1','#fc9272','#ef3b2c','#99000d'],
   unit: 'composite vulnerability score (0–100)',
   description: 'Composite measure combining flood hazard, poverty, income, and resilience.',
-},
+  },
+  {
+  label: 'Median Age',
+  column: 'MEDIAN_AGE',
+  scale: [0, 40, 45, 50, 55],
+  ramp: ['#ffffcc','#c7e9b4','#7fcdbb','#41b6c4','#253494'],
+  unit: 'years',
+  description: 'Median age of residents in each census tract.',
+  },
+  {
+    label: 'Employment Rate (%)',
+    column: 'EMPLOYMENT_RATE',
+    scale: [0, 90, 92, 94, 96],
+    ramp: ['#d73027','#fc8d59','#fee090','#91bfdb','#4575b4'],
+    unit: '% employed civilian labor force',
+    description: 'Percent of the civilian labor force that is employed.',
+  },
+  {
+    label: 'Median Rent ($)',
+    column: 'MEDIAN_RENT',
+    scale: [0, 700, 900, 1100, 1400],
+    ramp: ['#d73027','#fc8d59','#fee090','#91bfdb','#4575b4'],
+    unit: '$ median gross rent',
+    description: 'Median gross rent by census tract.',
+  },
+  {
+  label: 'Population Total',
+  column: 'POPULATION_TOTAL',
+  scale: [0, 1000, 2500, 5000, 10000],
+  ramp: ['#ffffcc','#c2e699','#78c679','#31a354','#006837'],
+  unit: 'people',
+  description: 'Total population by census tract.',
+  },
+  {
+    label: 'Population Density',
+    column: 'POP_DENSITY_SQ_MI',
+    scale: [0, 250, 1000, 2500, 5000],
+    ramp: ['#ffffcc','#c2e699','#78c679','#31a354','#006837'],
+    unit: 'people per square mile',
+    description: 'Population density based on tract population and land area.',
+  },
+  {
+    label: 'Households Without Vehicles (%)',
+    column: 'PCT_HH_NO_VEHICLE',
+    scale: [0, 5, 10, 15, 25],
+    ramp: ['#ffffcc','#fed976','#fd8d3c','#f03b20','#bd0026'],
+    unit: '% households with no vehicle',
+    description: 'Percentage of households without access to a vehicle.',
+  },
 ];
 
 // Global Variables
@@ -93,6 +141,8 @@ var mapInstance, geojsonLayer, infoControl, legendControl;
 var cursorTip;
 var cityLabelsLayer;
 var cityLabelsVisible = true;
+var hospitalLayer;
+var hospitalsVisible = true;
 
 // Major cities in Ohio Valley Region
 var CITIES = [
@@ -136,10 +186,12 @@ mapInstance = L.map('mapid').setView([38.5, -83.5], 6);
 mapInstance.createPane('tractsPane');
 mapInstance.createPane('riverPane');
 mapInstance.createPane('cityPane');
+mapInstance.createPane('hospitalPane');
 
 mapInstance.getPane('tractsPane').style.zIndex = 400;
 mapInstance.getPane('riverPane').style.zIndex = 650;
 mapInstance.getPane('cityPane').style.zIndex = 700;
+mapInstance.getPane('hospitalPane').style.zIndex = 725;
   
 
   // Add basemap
@@ -254,6 +306,40 @@ mapInstance.getPane('cityPane').style.zIndex = 700;
       }).addTo(mapInstance);
     });
 
+  fetch('ohio_river_valley_hospitals_filtered.geojson')
+  .then(function (r) { return r.json(); })
+  .then(function (data) {
+    hospitalLayer = L.geoJson(data, {
+      pane: 'hospitalPane',
+
+        pointToLayer: function(feature, latlng) {
+          return L.circleMarker(latlng, {
+            pane: 'hospitalPane',
+            radius: 7,
+            color: '#ffffff',
+            weight: 2,
+            opacity: 1,
+            fillColor: '#00d2ff',
+            fillOpacity: 1
+          });
+        },
+
+      onEachFeature: function(feature, layer) {
+        var name =
+          feature.properties.NAME ||
+          feature.properties.NAME_1 ||
+          feature.properties.HOSP_NAME ||
+          'Hospital';
+
+        layer.bindPopup('<b>' + name + '</b>');
+      }
+    }).addTo(mapInstance);
+  })
+  .catch(function(err) {
+    console.error('Failed to load hospitals:', err);
+  });
+
+
   // Add city labels
   addCityLabels();
 
@@ -287,6 +373,22 @@ mapInstance.getPane('cityPane').style.zIndex = 700;
       this.classList.add('hidden');
     }
   });
+
+  document.getElementById('hospitalToggle').addEventListener('click', function() {
+  hospitalsVisible = !hospitalsVisible;
+
+  this.textContent = hospitalsVisible ? '🏥 HIDE HOSPITALS' : '🏥 SHOW HOSPITALS';
+  this.classList.toggle('inactive');
+
+  if (!hospitalLayer) return;
+
+  if (hospitalsVisible) {
+    hospitalLayer.addTo(mapInstance);
+  } else {
+    mapInstance.removeLayer(hospitalLayer);
+  }
+  });
+
 });
 
 // Style
@@ -493,10 +595,26 @@ function makeDatasetChart(values) {
     breaks = [0, 10, 15, 20, 30, Infinity];
     labels = ['0–10%', '10–15%', '15–20%', '20–30%', '30%+'];
 
+  }  else if (activeDataset.column === 'POPULATION_TOTAL') {
+  breaks = [0, 1000, 2500, 5000, 10000, Infinity];
+  labels = ['0–1k', '1k–2.5k', '2.5k–5k', '5k–10k', '10k+'];
+
+  } else if (activeDataset.column === 'POP_DENSITY_SQ_MI') {
+    breaks = [0, 250, 1000, 2500, 5000, Infinity];
+    labels = ['0–250', '250–1k', '1k–2.5k', '2.5k–5k', '5k+'];
+
+  } else if (activeDataset.column === 'PCT_HH_NO_VEHICLE') {
+    breaks = [0, 5, 10, 15, 25, Infinity];
+    labels = ['0–5%', '5–10%', '10–15%', '15–25%', '25%+'];
+
+  } else if (activeDataset.column === 'HOSPITAL_COUNT') {
+    breaks = [0, 1, 2, 5, 10, Infinity];
+    labels = ['0', '1', '2–4', '5–9', '10+'];
   } else {
     breaks = [0, 20, 40, 60, 80, Infinity];
     labels = ['0–20', '20–40', '40–60', '60–80', '80+'];
-  }
+  } 
+  
 
   datasetChart = new Chart(ctx, {
     type: 'bar',

@@ -464,3 +464,26 @@ html, body {
   font-size: 24px;
   cursor: pointer;
 }
+
+.animation-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.animation-controls.hidden {
+  display: none;
+}
+
+#yearSlider {
+  width: 150px;
+  accent-color: #00d2ff;
+  cursor: pointer;
+}
+
+#yearLabel {
+  color: #00d2ff;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+}

@@ -58,16 +58,34 @@
     </aside>
   </div>
 
-  <div id="controls">
-    <select id="categorySelect" class="categorySelect"></select>
+<div id="controls">
 
-    <div class="control-divider"></div>
+  <select id="categorySelect" class="categorySelect"></select>
 
-    <button id="cityToggle" class="city-toggle">🏙️ HIDE CITIES</button>
-    <button id="resetViewBtn" class="city-toggle">RESET VIEW</button>
-    <button id="helpBtn" class="city-toggle">HELP</button>
-    <button id="hospitalToggle" class="city-toggle">🏥 HIDE HOSPITALS</button>
+  <!-- Animation Controls -->
+  <div id="animationControls" class="animation-controls hidden">
+    <button id="playAnimationBtn" class="city-toggle">▶ PLAY</button>
+
+    <input
+      id="yearSlider"
+      type="range"
+      min="2011"
+      max="2024"
+      value="2024"
+      step="1"
+    >
+
+    <span id="yearLabel">2024</span>
   </div>
+
+  <div class="control-divider"></div>
+
+  <button id="cityToggle" class="city-toggle">🏙️ HIDE CITIES</button>
+  <button id="hospitalToggle" class="city-toggle">🏥 HIDE HOSPITALS</button>
+  <button id="resetViewBtn" class="city-toggle">RESET VIEW</button>
+  <button id="helpBtn" class="city-toggle">HELP</button>
+
+</div>
 
   <div id="cursor-tooltip"></div>
 

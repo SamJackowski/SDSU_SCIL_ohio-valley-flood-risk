@@ -56,6 +56,8 @@ var DATASETS = [
   {
     label:  'Median Household Income ($)',
     column: 'MEDIAN_INCOME',
+    animationPrefix: 'MEDIAN_INCOME',
+    animated: true,
     scale:  [0, 40000, 55000, 70000, 90000],
     ramp:   ['#d73027','#fc8d59','#fee090','#91bfdb','#4575b4'],
     unit:   '$ median household income',
@@ -72,6 +74,8 @@ var DATASETS = [
   {
     label:  'Median Home Value ($)',
     column: 'MEDIAN_HOME_VALUE',
+    animationPrefix: 'MEDIAN_HOME_VALUE',
+    animated: true,
     scale:  [0, 100000, 175000, 250000, 350000],
     ramp:   ['#d73027','#fc8d59','#fee090','#91bfdb','#4575b4'],
     unit:   '$ median home value',
@@ -96,6 +100,8 @@ var DATASETS = [
   {
     label: 'Employment Rate (%)',
     column: 'EMPLOYMENT_RATE',
+    animationPrefix: 'EMPLOYMENT_RATE',
+    animated: true,
     scale: [0, 90, 92, 94, 96],
     ramp: ['#d73027','#fc8d59','#fee090','#91bfdb','#4575b4'],
     unit: '% employed civilian labor force',
@@ -143,6 +149,8 @@ var cityLabelsLayer;
 var cityLabelsVisible = true;
 var hospitalLayer;
 var hospitalsVisible = true;
+var activeYear = 2024;
+var animationTimer = null;
 
 // Major cities in Ohio Valley Region
 var CITIES = [
@@ -168,6 +176,31 @@ var CITIES = [
   { name: 'Morgantown', lat: 39.6295, lng: -79.9559, size: 'small' }
 ];
 
+
+// Animation Helpers
+function getActiveColumn() {
+  if (activeDataset.animated) {
+    return activeDataset.animationPrefix + '_' + activeYear;
+  }
+
+  return activeDataset.column;
+}
+
+function updateAnimationControls() {
+  var controls = document.getElementById('animationControls');
+
+  if (activeDataset.animated) {
+    controls.classList.remove('hidden');
+  } else {
+    controls.classList.add('hidden');
+
+    if (animationTimer) {
+      clearInterval(animationTimer);
+      animationTimer = null;
+      document.getElementById('playAnimationBtn').textContent = '▶ PLAY';
+    }
+  }
+}
 
 document.addEventListener('DOMContentLoaded', function () {
   // Cursor tooltip reference
@@ -216,7 +249,7 @@ mapInstance.getPane('hospitalPane').style.zIndex = 725;
   };
 
   infoControl.update = function (props) {
-    var val  = props ? props[activeDataset.column] : null;
+    var val  = props ? props[getActiveColumn()] : null;
     var name = props ? (props.NAME || props.COUNTY || props.GEOID || '?') : null;
     var state = props ? (props.STATEABBRV || '') : '';
 
@@ -253,10 +286,14 @@ mapInstance.getPane('hospitalPane').style.zIndex = 725;
   });
 
   select.addEventListener('change', function () {
-    activeDataset = DATASETS[parseInt(this.value)];
-    refreshMap();
-    updateDashboard(geojsonLayer.toGeoJSON());
+  activeDataset = DATASETS[parseInt(this.value)];
 
+  updateAnimationControls();
+  refreshMap();
+
+  if (geojsonLayer) {
+    updateDashboard(geojsonLayer.toGeoJSON());
+  }
   });
 
   // Load GeoJSON
@@ -389,6 +426,46 @@ mapInstance.getPane('hospitalPane').style.zIndex = 725;
   }
   });
 
+  document.getElementById('yearSlider').addEventListener('input', function() {
+  activeYear = Number(this.value);
+  document.getElementById('yearLabel').textContent = activeYear;
+
+  refreshMap();
+
+  if (geojsonLayer) {
+    updateDashboard(geojsonLayer.toGeoJSON());
+  }
+});
+
+  document.getElementById('playAnimationBtn').addEventListener('click', function() {
+    if (animationTimer) {
+      clearInterval(animationTimer);
+      animationTimer = null;
+      this.textContent = '▶ PLAY';
+      return;
+    }
+
+    this.textContent = '⏸ PAUSE';
+
+    animationTimer = setInterval(function() {
+      activeYear++;
+
+      if (activeYear > 2024) {
+        activeYear = 2011;
+      }
+
+      document.getElementById('yearSlider').value = activeYear;
+      document.getElementById('yearLabel').textContent = activeYear;
+
+      refreshMap();
+
+      if (geojsonLayer) {
+        updateDashboard(geojsonLayer.toGeoJSON());
+      }
+    }, 900);
+  });
+
+    updateAnimationControls();
 });
 
 // Style
@@ -407,7 +484,7 @@ function getColor(value) {
 
 function styleFeature(feature) {
   return {
-    fillColor:   getColor(feature.properties[activeDataset.column]),
+    fillColor: getColor(feature.properties[getActiveColumn()]),
     weight:      0.4,
     opacity:     1,
     color:       '#0a0a14',
@@ -431,7 +508,7 @@ function highlightFeature(e) {
   infoControl.update(layer.feature.properties);
 
   // Show value next to cursor
-  var val = layer.feature.properties[activeDataset.column];
+  var val = layer.feature.properties[getActiveColumn()];
   if (cursorTip && val != null && val !== '' && Number(val) >= 0) {
     cursorTip.textContent = Number(val).toLocaleString();
     cursorTip.style.display = 'block';
@@ -458,8 +535,10 @@ function refreshMap() {
 function updateLegend(div) {
   var breaks = activeDataset.scale;
   var ramp   = activeDataset.ramp;
-  var html   = '<strong>' + activeDataset.label + '</strong><br>' +
-               '<small>' + activeDataset.unit + '</small><br><br>';
+  var title = activeDataset.animated
+    ? activeDataset.label + ' (' + activeYear + ')'
+    : activeDataset.label;
+  var html = '<strong>' + title + '</strong><br>';
   for (var i = breaks.length - 1; i >= 0; i--) {
     var from = breaks[i];
     var to   = breaks[i + 1];
@@ -540,9 +619,10 @@ var datasetChart = null;
 
 function updateDashboard(data) {
   var features = data.features;
+  var activeColumn = getActiveColumn();
 
   var values = features
-    .map(function(f) { return Number(f.properties[activeDataset.column]); })
+    .map(function(f) { return Number(f.properties[activeColumn]); })
     .filter(function(v) { return !isNaN(v) && v >= 0; });
 
   if (!values.length) return;
@@ -553,14 +633,18 @@ function updateDashboard(data) {
 
   var topFeature = features
     .filter(function(f) {
-      return !isNaN(Number(f.properties[activeDataset.column]));
+      return !isNaN(Number(f.properties[activeColumn]));
     })
     .sort(function(a, b) {
-      return Number(b.properties[activeDataset.column]) -
-             Number(a.properties[activeDataset.column]);
+      return Number(b.properties[activeColumn]) -
+             Number(a.properties[activeColumn]);
     })[0];
 
-  document.getElementById('dashboardTitle').textContent = activeDataset.label;
+  document.getElementById('dashboardTitle').textContent =
+    activeDataset.animated
+      ? activeDataset.label + ' (' + activeYear + ')'
+      : activeDataset.label;
+
   document.getElementById('dashboardDescription').textContent = activeDataset.description;
   document.getElementById('dashboardAverage').textContent = avg.toFixed(1);
   document.getElementById('dashboardMaximum').textContent = max.toFixed(1);
@@ -583,7 +667,7 @@ function makeDatasetChart(values) {
   var labels;
   var breaks;
 
-  if (activeDataset.column === 'MEDIAN_INCOME') {
+  if (activeDataset.animationPrefix === 'MEDIAN_INCOME') {
     breaks = [0, 40000, 55000, 70000, 90000, Infinity];
     labels = ['$0–40k', '$40k–55k', '$55k–70k', '$70k–90k', '$90k+'];
 

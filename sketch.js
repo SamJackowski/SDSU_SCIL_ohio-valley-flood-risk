@@ -119,15 +119,14 @@ var DATASETS = [
   label: 'Population Total',
   column: 'POPULATION_TOTAL',
   scale: [0, 1000, 2500, 5000, 10000],
-  ramp: ['#ffffcc','#c2e699','#78c679','#31a354','#006837'],
-  unit: 'people',
+  ramp: ['#2c7bb6', '#00ca2f', '#ffff8c', '#fdae61', '#d7191c'],  unit: 'people',
   description: 'Total population by census tract.',
   },
   {
     label: 'Population Density',
     column: 'POP_DENSITY_SQ_MI',
     scale: [0, 250, 1000, 2500, 5000],
-    ramp: ['#ffffcc','#c2e699','#78c679','#31a354','#006837'],
+    ramp: ['#2c7bb6', '#00ca2f', '#ffff8c', '#fdae61', '#d7191c'],
     unit: 'people per square mile',
     description: 'Population density based on tract population and land area.',
   },
@@ -148,9 +147,18 @@ var cursorTip;
 var cityLabelsLayer;
 var cityLabelsVisible = true;
 var hospitalLayer;
-var hospitalsVisible = true;
+var hospitalsVisible = false;
 var activeYear = 2024;
 var animationTimer = null;
+// Two tract GeoJSONs for the animation boundary switch
+var GEOJSON_FILES = {
+  '2010': 'ohio_river_valley_tracts_2010_2011_2019_simple.geojson',
+  '2020': 'ohio_river_valley_tracts_2020_2024_simple.geojson'
+};
+
+var tractGeojsonCache = {};
+var activeGeojsonVintage = null;
+var latestGeojsonRequestId = 0;
 
 // Major cities in Ohio Valley Region
 var CITIES = [
@@ -184,6 +192,111 @@ function getActiveColumn() {
   }
 
   return activeDataset.column;
+}
+
+function getGeojsonVintageForCurrentState() {
+  // Only animated Census datasets need the 2010/2020 tract switch.
+  // Static layers use the 2020/current GeoJSON.
+  if (activeDataset.animated && activeYear < 2020) {
+    return '2010';
+  }
+
+  return '2020';
+}
+
+function updateBoundaryNote() {
+  var note = document.getElementById('boundaryNote');
+  if (!note) return;
+
+  if (!activeDataset.animated) {
+    note.textContent = 'Static layers use current tract geography.';
+    return;
+  }
+
+  if (activeYear < 2020) {
+    note.textContent = 'Using 2010 Census tract boundaries.';
+  } else {
+    note.textContent = 'Using 2020 Census tract boundaries.';
+  }
+}
+
+function restyleCurrentGeojson() {
+  if (!geojsonLayer) return;
+
+  if (cursorTip) cursorTip.style.display = 'none';
+
+  geojsonLayer.eachLayer(function (layer) {
+    geojsonLayer.resetStyle(layer);
+  });
+
+  infoControl.update();
+  updateLegend(legendControl._div);
+  updateBoundaryNote();
+}
+
+function loadTractGeojsonForCurrentState(options) {
+  options = options || {};
+
+  var vintage = getGeojsonVintageForCurrentState();
+  var requestId = ++latestGeojsonRequestId;
+
+  // If the correct GeoJSON is already on the map, just restyle it.
+  if (geojsonLayer && activeGeojsonVintage === vintage) {
+    restyleCurrentGeojson();
+    updateDashboard(geojsonLayer.toGeoJSON());
+    return Promise.resolve(geojsonLayer.toGeoJSON());
+  }
+
+  var dataPromise;
+
+  if (tractGeojsonCache[vintage]) {
+    dataPromise = Promise.resolve(tractGeojsonCache[vintage]);
+  } else {
+    dataPromise = fetch(GEOJSON_FILES[vintage])
+      .then(function (r) {
+        if (!r.ok) {
+          throw new Error('Could not load ' + GEOJSON_FILES[vintage]);
+        }
+        return r.json();
+      })
+      .then(function (data) {
+        tractGeojsonCache[vintage] = data;
+        return data;
+      });
+  }
+
+  return dataPromise
+    .then(function (data) {
+      if (requestId !== latestGeojsonRequestId) {
+          return data;
+      }
+
+      if (geojsonLayer) {
+        mapInstance.removeLayer(geojsonLayer);
+      }
+
+      geojsonLayer = L.geoJson(data, {
+        pane: 'tractsPane',
+        style: styleFeature,
+        onEachFeature: onEachFeature,
+      }).addTo(mapInstance);
+
+      activeGeojsonVintage = vintage;
+
+      if (options.fitBounds) {
+        mapInstance.fitBounds(geojsonLayer.getBounds(), {
+          padding: [30, 30]
+        });
+      }
+
+      restyleCurrentGeojson();
+      updateDashboard(data);
+
+      return data;
+    })
+    .catch(function (err) {
+      console.error('Failed to load tract GeoJSON:', err);
+    });
 }
 
 function updateAnimationControls() {
@@ -286,36 +399,15 @@ mapInstance.getPane('hospitalPane').style.zIndex = 725;
   });
 
   select.addEventListener('change', function () {
-  activeDataset = DATASETS[parseInt(this.value)];
+    activeDataset = DATASETS[parseInt(this.value)];
 
-  updateAnimationControls();
-  refreshMap();
-
-  if (geojsonLayer) {
-    updateDashboard(geojsonLayer.toGeoJSON());
-  }
+    updateAnimationControls();
+    refreshMap();
   });
 
-  // Load GeoJSON
-  fetch('ohio_river_valley_final.geojson')
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      geojsonLayer = L.geoJson(data, {
-        pane: 'tractsPane', 
-        style: styleFeature,
-        onEachFeature: onEachFeature,
-      }).addTo(mapInstance);
 
-      mapInstance.fitBounds(geojsonLayer.getBounds(), {
-      padding: [30, 30]
-      });
-
-      updateDashboard(data);
-
-    })
-    .catch(function (err) {
-      console.error('Failed to load GeoJSON:', err);
-    });
+  // Load initial tract GeoJSON
+  loadTractGeojsonForCurrentState({ fitBounds: true });
 
 
 
@@ -343,23 +435,23 @@ mapInstance.getPane('hospitalPane').style.zIndex = 725;
       }).addTo(mapInstance);
     });
 
-  fetch('ohio_river_valley_hospitals_filtered.geojson')
+ fetch('ohio_river_valley_hospitals_filtered.geojson')
   .then(function (r) { return r.json(); })
   .then(function (data) {
     hospitalLayer = L.geoJson(data, {
       pane: 'hospitalPane',
 
-        pointToLayer: function(feature, latlng) {
-          return L.circleMarker(latlng, {
-            pane: 'hospitalPane',
-            radius: 7,
-            color: '#ffffff',
-            weight: 2,
-            opacity: 1,
-            fillColor: '#00d2ff',
-            fillOpacity: 1
-          });
-        },
+      pointToLayer: function(feature, latlng) {
+        return L.circleMarker(latlng, {
+          pane: 'hospitalPane',
+          radius: 7,
+          color: '#ffffff',
+          weight: 2,
+          opacity: 1,
+          fillColor: '#00d2ff',
+          fillOpacity: 1
+        });
+      },
 
       onEachFeature: function(feature, layer) {
         var name =
@@ -370,7 +462,13 @@ mapInstance.getPane('hospitalPane').style.zIndex = 725;
 
         layer.bindPopup('<b>' + name + '</b>');
       }
-    }).addTo(mapInstance);
+    });
+
+    // Hospitals are hidden by default.
+    // They will only be added if hospitalsVisible is true.
+    if (hospitalsVisible) {
+      hospitalLayer.addTo(mapInstance);
+    }
   })
   .catch(function(err) {
     console.error('Failed to load hospitals:', err);
@@ -427,15 +525,11 @@ mapInstance.getPane('hospitalPane').style.zIndex = 725;
   });
 
   document.getElementById('yearSlider').addEventListener('input', function() {
-  activeYear = Number(this.value);
-  document.getElementById('yearLabel').textContent = activeYear;
+    activeYear = Number(this.value);
+    document.getElementById('yearLabel').textContent = activeYear;
 
-  refreshMap();
-
-  if (geojsonLayer) {
-    updateDashboard(geojsonLayer.toGeoJSON());
-  }
-});
+    refreshMap();
+  });
 
   document.getElementById('playAnimationBtn').addEventListener('click', function() {
     if (animationTimer) {
@@ -459,9 +553,6 @@ mapInstance.getPane('hospitalPane').style.zIndex = 725;
 
       refreshMap();
 
-      if (geojsonLayer) {
-        updateDashboard(geojsonLayer.toGeoJSON());
-      }
     }, 900);
   });
 
@@ -522,33 +613,34 @@ function resetHighlight(e) {
 }
 
 // Update Map
-function refreshMap() {
-  if (!geojsonLayer) return;
-  if (cursorTip) cursorTip.style.display = 'none'; 
-  geojsonLayer.eachLayer(function (layer) {
-    geojsonLayer.resetStyle(layer);
-  });
-  infoControl.update();
-  updateLegend(legendControl._div);
+function refreshMap(options) {
+  return loadTractGeojsonForCurrentState(options || {});
 }
 
 function updateLegend(div) {
-  var breaks = activeDataset.scale;
-  var ramp   = activeDataset.ramp;
-  var title = activeDataset.animated
-    ? activeDataset.label + ' (' + activeYear + ')'
-    : activeDataset.label;
+  var title = activeDataset.label;
+  var scale = activeDataset.scale;
+  var ramp = activeDataset.ramp;
   var html = '<strong>' + title + '</strong><br>';
-  for (var i = breaks.length - 1; i >= 0; i--) {
-    var from = breaks[i];
-    var to   = breaks[i + 1];
+  if (activeDataset.unit) {
+    html += '<small>' + activeDataset.unit + '</small><br>';
+  }
+  if (activeDataset.animated) {
+    html += '<small>Boundary: ' +
+      getGeojsonVintageForCurrentState() +
+      ' Census tracts</small><br>';
+  }
+  for (var i = 0; i < ramp.length; i++) {
+    var from = scale[i];
+    var to = scale[i + 1];
     html +=
       '<i style="background:' + ramp[i] + '"></i> ' +
-      from.toLocaleString() + (to != null ? '&ndash;' + to.toLocaleString() : '+') + '<br>';
+      from +
+      (to ? '&ndash;' + to : '+') +
+      '<br>';
   }
   div.innerHTML = html;
 }
-
 // City Labels Functions
 function addCityLabels() {
   cityLabelsLayer = L.layerGroup();
@@ -679,7 +771,18 @@ function makeDatasetChart(values) {
     breaks = [0, 10, 15, 20, 30, Infinity];
     labels = ['0–10%', '10–15%', '15–20%', '20–30%', '30%+'];
 
-  }  else if (activeDataset.column === 'POPULATION_TOTAL') {
+  } else if (
+    activeDataset.column === 'EMPLOYMENT_RATE' ||
+    activeDataset.animationPrefix === 'EMPLOYMENT_RATE'
+  ) {
+    breaks = [0, 85, 90, 92, 94, 96, Infinity];
+    labels = ['0–85%', '85–90%', '90–92%', '92–94%', '94–96%', '96%+'];
+
+  } else if (activeDataset.column === 'MEDIAN_RENT') {
+    breaks = [0, 500, 750, 1000, 1250, 1500, Infinity];
+    labels = ['$0–500', '$500–750', '$750–1k', '$1k–1.25k', '$1.25k–1.5k', '$1.5k+'];
+
+  } else if (activeDataset.column === 'POPULATION_TOTAL') {
   breaks = [0, 1000, 2500, 5000, 10000, Infinity];
   labels = ['0–1k', '1k–2.5k', '2.5k–5k', '5k–10k', '10k+'];
 

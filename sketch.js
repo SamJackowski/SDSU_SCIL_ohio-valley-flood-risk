@@ -5,7 +5,7 @@
 // For the 6 main states in the Ohio River Valley Region: Indiana, Illinois, Ohio, Pennsylvania,
 // Kentucky, and West Virginia
 // Risk data sourced from the FEMA NRI Table (https://www.fema.gov/about/openfema/data-sets/national-risk-index-data)
-// Socioeconomic data sourced from US Census Bureau (Tables S1701 and B19013)
+// Socioeconomic data sourced from US Census Bureau 
 // By Sam Jackowski
 //==================================================================================================
 
@@ -38,6 +38,14 @@ var DATASETS = [
     description:  "FEMA composite natural hazard risk score.", 
   },
   {
+  label: 'Flood Vulnerability Index',
+  column: 'FLOOD_VULN_INDEX',
+  scale: [0, 20, 40, 60, 80],
+  ramp: ['#fff5f0','#fcbba1','#fc9272','#ef3b2c','#99000d'],
+  unit: 'composite vulnerability score (0–100)',
+  description: 'Composite measure combining flood hazard, poverty, income, and resilience.',
+  },
+  {
     label:  'Social Vulnerability Score',
     column: 'SOVI_SCORE',
     scale:  [0, 20, 40, 60, 80],
@@ -55,8 +63,8 @@ var DATASETS = [
   },
   {
     label:  'Median Household Income ($)',
-    column: 'MEDIAN_INCOME',
-    animationPrefix: 'MEDIAN_INCOME',
+    column: 'MEDIAN_HOUSEHOLD_INCOME',
+    animationPrefix: 'MEDIAN_HOUSEHOLD_INCOME',
     animated: true,
     scale:  [0, 40000, 55000, 70000, 90000],
     ramp:   ['#d73027','#fc8d59','#fee090','#91bfdb','#4575b4'],
@@ -72,32 +80,6 @@ var DATASETS = [
     description:  "Percent of population below poverty level.", 
   },
   {
-    label:  'Median Home Value ($)',
-    column: 'MEDIAN_HOME_VALUE',
-    animationPrefix: 'MEDIAN_HOME_VALUE',
-    animated: true,
-    scale:  [0, 100000, 175000, 250000, 350000],
-    ramp:   ['#d73027','#fc8d59','#fee090','#91bfdb','#4575b4'],
-    unit:   '$ median home value',
-    description:  "Census tract median home value.", 
-  },
-  {
-  label: 'Flood Vulnerability Index',
-  column: 'FLOOD_VULN_INDEX',
-  scale: [0, 20, 40, 60, 80],
-  ramp: ['#fff5f0','#fcbba1','#fc9272','#ef3b2c','#99000d'],
-  unit: 'composite vulnerability score (0–100)',
-  description: 'Composite measure combining flood hazard, poverty, income, and resilience.',
-  },
-  {
-  label: 'Median Age',
-  column: 'MEDIAN_AGE',
-  scale: [0, 40, 45, 50, 55],
-  ramp: ['#ffffcc','#c7e9b4','#7fcdbb','#41b6c4','#253494'],
-  unit: 'years',
-  description: 'Median age of residents in each census tract.',
-  },
-  {
     label: 'Employment Rate (%)',
     column: 'EMPLOYMENT_RATE',
     animationPrefix: 'EMPLOYMENT_RATE',
@@ -108,6 +90,16 @@ var DATASETS = [
     description: 'Percent of the civilian labor force that is employed.',
   },
   {
+    label:  'Median Home Value ($)',
+    column: 'MEDIAN_HOME_VALUE',
+    animationPrefix: 'MEDIAN_HOME_VALUE',
+    animated: true,
+    scale:  [0, 100000, 175000, 250000, 350000],
+    ramp:   ['#d73027','#fc8d59','#fee090','#91bfdb','#4575b4'],
+    unit:   '$ median home value',
+    description:  "Census tract median home value.", 
+  },
+  {
     label: 'Median Rent ($)',
     column: 'MEDIAN_RENT',
     scale: [0, 700, 900, 1100, 1400],
@@ -116,27 +108,39 @@ var DATASETS = [
     description: 'Median gross rent by census tract.',
   },
   {
-  label: 'Population Total',
-  column: 'POPULATION_TOTAL',
-  scale: [0, 1000, 2500, 5000, 10000],
-  ramp: ['#2c7bb6', '#00ca2f', '#ffff8c', '#fdae61', '#d7191c'],  unit: 'people',
-  description: 'Total population by census tract.',
-  },
-  {
-    label: 'Population Density',
-    column: 'POP_DENSITY_SQ_MI',
-    scale: [0, 250, 1000, 2500, 5000],
-    ramp: ['#2c7bb6', '#00ca2f', '#ffff8c', '#fdae61', '#d7191c'],
-    unit: 'people per square mile',
-    description: 'Population density based on tract population and land area.',
-  },
-  {
     label: 'Households Without Vehicles (%)',
     column: 'PCT_HH_NO_VEHICLE',
     scale: [0, 5, 10, 15, 25],
     ramp: ['#ffffcc','#fed976','#fd8d3c','#f03b20','#bd0026'],
     unit: '% households with no vehicle',
     description: 'Percentage of households without access to a vehicle.',
+  },
+  {
+    label: 'Population Total',
+    animated: true,
+    animationPrefix: 'POPULATION_TOTAL',
+    scale: [0, 1000, 2500, 5000, 10000],
+    ramp: ['#2c7bb6', '#00ca2f', '#ffff8c', '#fdae61', '#d7191c'],
+    unit: 'people',
+    description: 'Total population from ACS table B01003. Animated by year for 2011–2024.',
+  },
+  {
+    label: 'Population Density',
+    animated: true,
+    animationPrefix: 'POP_DENSITY_SQ_MI',
+    scale: [0, 250, 1000, 2500, 5000],
+    ramp: ['#2c7bb6', '#00ca2f', '#ffff8c', '#fdae61', '#d7191c'],
+    unit: 'people per square mile',
+    description: 'Population density based on tract population and land area.',
+  },
+  {
+    label: 'Median Age',
+    animated: true,
+    animationPrefix: 'MEDIAN_AGE',
+    scale: [25, 35, 40, 45, 50],
+    ramp: ['#f7fcf5', '#c7e9c0', '#74c476', '#238b45', '#00441b'],
+    unit: 'years',
+    description: 'Median age of residents from ACS table B01002. Animated by year for 2011–2024.',
   },
 ];
 
@@ -759,11 +763,19 @@ function makeDatasetChart(values) {
   var labels;
   var breaks;
 
-  if (activeDataset.animationPrefix === 'MEDIAN_INCOME') {
+  if (
+    activeDataset.animationPrefix === 'MEDIAN_INCOME' ||
+    activeDataset.animationPrefix === 'MEDIAN_HOUSEHOLD_INCOME' ||
+    activeDataset.column === 'MEDIAN_INCOME' ||
+    activeDataset.column === 'MEDIAN_HOUSEHOLD_INCOME'
+  ) {
     breaks = [0, 40000, 55000, 70000, 90000, Infinity];
     labels = ['$0–40k', '$40k–55k', '$55k–70k', '$70k–90k', '$90k+'];
 
-  } else if (activeDataset.column === 'MEDIAN_HOME_VALUE') {
+  } else if (
+    activeDataset.column === 'MEDIAN_HOME_VALUE' ||
+    activeDataset.animationPrefix === 'MEDIAN_HOME_VALUE'
+  ) {
     breaks = [0, 100000, 175000, 250000, 350000, Infinity];
     labels = ['$0–100k', '$100k–175k', '$175k–250k', '$250k–350k', '$350k+'];
 
@@ -782,26 +794,42 @@ function makeDatasetChart(values) {
     breaks = [0, 500, 750, 1000, 1250, 1500, Infinity];
     labels = ['$0–500', '$500–750', '$750–1k', '$1k–1.25k', '$1.25k–1.5k', '$1.5k+'];
 
-  } else if (activeDataset.column === 'POPULATION_TOTAL') {
-  breaks = [0, 1000, 2500, 5000, 10000, Infinity];
-  labels = ['0–1k', '1k–2.5k', '2.5k–5k', '5k–10k', '10k+'];
+  } else if (
+    activeDataset.column === 'POPULATION_TOTAL' ||
+    activeDataset.animationPrefix === 'POPULATION_TOTAL'
+  ) {
+    breaks = [0, 1000, 2500, 5000, 10000, Infinity];
+    labels = ['0–1k', '1k–2.5k', '2.5k–5k', '5k–10k', '10k+'];
 
-  } else if (activeDataset.column === 'POP_DENSITY_SQ_MI') {
+  } else if (
+    activeDataset.column === 'POP_DENSITY_SQ_MI' ||
+    activeDataset.animationPrefix === 'POP_DENSITY_SQ_MI'
+  ) {
     breaks = [0, 250, 1000, 2500, 5000, Infinity];
     labels = ['0–250', '250–1k', '1k–2.5k', '2.5k–5k', '5k+'];
 
-  } else if (activeDataset.column === 'PCT_HH_NO_VEHICLE') {
+  } else if (
+    activeDataset.column === 'MEDIAN_AGE' ||
+    activeDataset.animationPrefix === 'MEDIAN_AGE'
+  ) {
+    breaks = [0, 25, 35, 45, 55, Infinity];
+    labels = ['0–25', '25–35', '35–45', '45–55', '55+'];
+
+  } else if (
+    activeDataset.column === 'PCT_HH_NO_VEHICLE' ||
+    activeDataset.column === 'NO_VEHICLE_RATE'
+  ) {
     breaks = [0, 5, 10, 15, 25, Infinity];
     labels = ['0–5%', '5–10%', '10–15%', '15–25%', '25%+'];
 
   } else if (activeDataset.column === 'HOSPITAL_COUNT') {
     breaks = [0, 1, 2, 5, 10, Infinity];
     labels = ['0', '1', '2–4', '5–9', '10+'];
+
   } else {
     breaks = [0, 20, 40, 60, 80, Infinity];
     labels = ['0–20', '20–40', '40–60', '60–80', '80+'];
-  } 
-  
+  }
 
   datasetChart = new Chart(ctx, {
     type: 'bar',

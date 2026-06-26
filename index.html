@@ -8,8 +8,11 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- Chart.js -->
+  <!-- Chart.js for dashboard and tract time-series charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Turf.js for finding clicked tracts across 2010/2020 boundaries -->
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
 
   <!-- Styles -->
   <link rel="stylesheet" href="style.css">
@@ -58,63 +61,82 @@
     </aside>
   </div>
 
-<div id="controls">
+  <div id="controls">
 
-  <select id="categorySelect" class="categorySelect"></select>
+    <select id="categorySelect" class="categorySelect"></select>
 
-  <!-- Animation Controls -->
-  <div id="animationControls" class="animation-controls hidden">
-    <button id="playAnimationBtn" class="city-toggle">▶ PLAY</button>
+    <!-- Animation Controls -->
+    <div id="animationControls" class="animation-controls hidden">
+      <button id="playAnimationBtn" class="city-toggle">▶ PLAY</button>
 
-    <input
-      id="yearSlider"
-      type="range"
-      min="2011"
-      max="2024"
-      value="2024"
-      step="1"
-    >
+      <input
+        id="yearSlider"
+        type="range"
+        min="2011"
+        max="2024"
+        value="2024"
+        step="1"
+      >
 
-    <span id="yearLabel">2024</span>
-    <span id="boundaryNote" class="boundary-note">Using 2020 Census tract boundaries.</span>
+      <span id="yearLabel">2024</span>
+      <span id="boundaryNote" class="boundary-note">Using 2020 Census tract boundaries.</span>
+    </div>
+
+    <div class="control-divider"></div>
+
+    <button id="cityToggle" class="city-toggle">🏙️ HIDE CITIES</button>
+    <button id="hospitalToggle" class="city-toggle inactive">🏥 SHOW HOSPITALS</button>
+    <button id="resetViewBtn" class="city-toggle">RESET VIEW</button>
+    <button id="helpBtn" class="city-toggle">HELP</button>
+
   </div>
-
-  <div class="control-divider"></div>
-
-  <button id="cityToggle" class="city-toggle">🏙️ HIDE CITIES</button>
-  <button id="hospitalToggle" class="city-toggle inactive">🏥 SHOW HOSPITALS</button>
-  <button id="resetViewBtn" class="city-toggle">RESET VIEW</button>
-  <button id="helpBtn" class="city-toggle">HELP</button>
-
-</div>
 
   <div id="cursor-tooltip"></div>
 
-<div id="helpModal" class="help-modal hidden">
-  <div class="help-content">
-    <button id="closeHelpBtn" class="help-close">×</button>
-    <h2>Dataset Guide</h2>
-    <p><b>Inland Flood Risk Score:</b> FEMA National Risk Index score estimating relative inland flood risk for each tract or area. Higher values indicate greater flood risk.</p>
-    <p><b>Inland Flood Expected Annual Loss:</b> FEMA estimate of expected annualized losses from inland flooding. Higher values indicate greater potential loss exposure.</p>
-    <p><b>Overall Risk Score:</b> FEMA composite natural hazard risk score that combines expected annual loss, social vulnerability, and community resilience.</p>
-    <p><b>Social Vulnerability Score:</b> FEMA score estimating how sensitive a community may be to hazard impacts based on social and demographic conditions. Higher values indicate greater vulnerability.</p>
-    <p><b>Community Resilience Score:</b> FEMA score estimating a community’s ability to prepare for, respond to, and recover from hazard events. Higher values indicate greater resilience.</p>
-    <p><b>Median Household Income:</b> Census tract median household income in dollars. Animated by year for 2011–2024.</p>
-    <p><b>Poverty Rate:</b> Percent of residents whose income falls below the poverty level.</p>
-    <p><b>Median Home Value:</b> Census tract median value of owner-occupied housing units in dollars. Animated by year for 2011–2024.</p>
-    <p><b>Flood Vulnerability Index:</b> Custom composite index combining inland flood risk, poverty rate, median income, and community resilience. Higher values indicate greater relative flood vulnerability.</p>
-    <p><b>Median Age:</b> Median age of residents in each census tract, measured in years.</p>
-    <p><b>Employment Rate:</b> Percent of the civilian labor force that is employed. Animated by year for 2011–2024.</p>
-    <p><b>Median Rent:</b> Median gross rent in dollars for renter-occupied housing units.</p>
-    <p><b>Population Total:</b> Total number of residents in each census tract.</p>
-    <p><b>Population Density:</b> Number of residents per square mile, calculated from tract population and land area.</p>
-    <p><b>Households Without Vehicles:</b> Percent of households with no vehicle available, used as an indicator of transportation access and evacuation vulnerability.</p>
-    <p><b>Hospitals:</b> Optional point layer showing hospital locations within the mapped Ohio Valley tract area. Use the hospital toggle to show or hide this layer.</p>
-    <p><b>Boundary Note:</b> The animation uses 2010 Census tract boundaries for 2011–2019 and 2020 Census tract boundaries for 2020–2024. The switch occurs at 2020 because Census tract boundaries changed after the 2020 Census.</p>
-  </div>
-      </div>
-    </div>
+  <div id="helpModal" class="help-modal hidden">
+    <div class="help-content">
+      <button id="closeHelpBtn" class="help-close">×</button>
 
-  <script src="sketch.js?v=9"></script>
+      <h2>Dataset Guide</h2>
+
+      <p><b>Inland Flood Risk Score:</b> FEMA National Risk Index score estimating relative inland flood risk for each tract or area. Higher values indicate greater flood risk.</p>
+
+      <p><b>Inland Flood Expected Annual Loss:</b> FEMA estimate of expected annualized losses from inland flooding. Higher values indicate greater potential loss exposure.</p>
+
+      <p><b>Overall Risk Score:</b> FEMA composite natural hazard risk score that combines expected annual loss, social vulnerability, and community resilience.</p>
+
+      <p><b>Social Vulnerability Score:</b> FEMA score estimating how sensitive a community may be to hazard impacts based on social and demographic conditions. Higher values indicate greater vulnerability.</p>
+
+      <p><b>Community Resilience Score:</b> FEMA score estimating a community’s ability to prepare for, respond to, and recover from hazard events. Higher values indicate greater resilience.</p>
+
+      <p><b>Median Household Income:</b> Census tract median household income in dollars. Animated by year for 2011–2024.</p>
+
+      <p><b>Poverty Rate:</b> Percent of residents whose income falls below the poverty level.</p>
+
+      <p><b>Median Home Value:</b> Census tract median value of owner-occupied housing units in dollars. Animated by year for 2011–2024.</p>
+
+      <p><b>Flood Vulnerability Index:</b> Custom composite index combining inland flood risk, poverty rate, median income, and community resilience. Higher values indicate greater relative flood vulnerability.</p>
+
+      <p><b>Median Age:</b> Median age of residents in each census tract, measured in years. Animated by year for 2011–2024.</p>
+
+      <p><b>Employment Rate:</b> Percent of the civilian labor force that is employed. Animated by year for 2011–2024.</p>
+
+      <p><b>Median Rent:</b> Median gross rent in dollars for renter-occupied housing units.</p>
+
+      <p><b>Population Total:</b> Total number of residents in each census tract. Animated by year for 2011–2024.</p>
+
+      <p><b>Population Density:</b> Number of residents per square mile, calculated from tract population and land area. Animated by year for 2011–2024.</p>
+
+      <p><b>Households Without Vehicles:</b> Percent of households with no vehicle available, used as an indicator of transportation access and evacuation vulnerability.</p>
+
+      <p><b>Hospitals:</b> Optional point layer showing hospital locations within the mapped Ohio Valley tract area. Use the hospital toggle to show or hide this layer.</p>
+
+      <p><b>Boundary Note:</b> The animation uses 2010 Census tract boundaries for 2011–2019 and 2020 Census tract boundaries for 2020–2024. The switch occurs at 2020 because Census tract boundaries changed after the 2020 Census.</p>
+    </div>
+  </div>
+
+  <!-- Main map script. Keep this last. -->
+  <script src="sketch.js?v=11"></script>
+
 </body>
 </html>

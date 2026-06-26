@@ -563,6 +563,207 @@ mapInstance.getPane('hospitalPane').style.zIndex = 725;
     updateAnimationControls();
 });
 
+var tractTimeSeriesChart = null;
+
+function ensureTractGeojsonLoaded(boundaryYear) {
+  if (tractGeojsonCache[boundaryYear]) {
+    return Promise.resolve(tractGeojsonCache[boundaryYear]);
+  }
+
+  return fetch(GEOJSON_FILES[boundaryYear])
+    .then(function(response) {
+      if (!response.ok) {
+        throw new Error('Could not load GeoJSON for ' + boundaryYear);
+      }
+      return response.json();
+    })
+    .then(function(data) {
+      tractGeojsonCache[boundaryYear] = data;
+      return data;
+    });
+}
+
+function findFeatureContainingClick(boundaryYear, latlng) {
+  var geojson = tractGeojsonCache[boundaryYear];
+
+  if (!geojson || !geojson.features) {
+    return null;
+  }
+
+  var point = turf.point([latlng.lng, latlng.lat]);
+
+  for (var i = 0; i < geojson.features.length; i++) {
+    var feature = geojson.features[i];
+
+    try {
+      if (turf.booleanPointInPolygon(point, feature)) {
+        return feature;
+      }
+    } catch (err) {
+      // Skip invalid geometries
+    }
+  }
+
+  return null;
+}
+
+function getTimeSeriesForClickedLocation(latlng, dataset) {
+  var years = [];
+  var values = [];
+
+  var feature2010 = findFeatureContainingClick('2010', latlng);
+  var feature2020 = findFeatureContainingClick('2020', latlng);
+
+  for (var year = 2011; year <= 2024; year++) {
+    var boundaryFeature = year < 2020 ? feature2010 : feature2020;
+    var column = dataset.animationPrefix + '_' + year;
+
+    years.push(year);
+
+    if (
+      boundaryFeature &&
+      boundaryFeature.properties &&
+      boundaryFeature.properties[column] !== undefined &&
+      boundaryFeature.properties[column] !== null &&
+      boundaryFeature.properties[column] !== ''
+    ) {
+      values.push(Number(boundaryFeature.properties[column]));
+    } else {
+      values.push(null);
+    }
+  }
+
+  return {
+    years: years,
+    values: values,
+    feature2010: feature2010,
+    feature2020: feature2020
+  };
+}
+
+function formatChartValue(value, dataset) {
+  if (value === null || value === undefined || isNaN(Number(value))) {
+    return 'No data';
+  }
+
+  var numberValue = Number(value);
+
+  if (dataset.unit === '$') {
+    return '$' + Math.round(numberValue).toLocaleString();
+  }
+
+  if (dataset.unit === '%') {
+    return numberValue.toFixed(1) + '%';
+  }
+
+  if (dataset.unit) {
+    return numberValue.toLocaleString() + ' ' + dataset.unit;
+  }
+
+  return numberValue.toLocaleString();
+}
+
+function showTimeSeriesPopup(latlng, feature) {
+  if (!activeDataset || !activeDataset.animated) {
+    return;
+  }
+
+  Promise.all([
+    ensureTractGeojsonLoaded('2010'),
+    ensureTractGeojsonLoaded('2020')
+  ]).then(function() {
+    var series = getTimeSeriesForClickedLocation(latlng, activeDataset);
+
+    var chartId = 'tract-time-series-chart-' + Date.now();
+
+    var geoid2010 = series.feature2010 && series.feature2010.properties
+      ? series.feature2010.properties.GEOID
+      : 'No 2010 tract found';
+
+    var geoid2020 = series.feature2020 && series.feature2020.properties
+      ? series.feature2020.properties.GEOID
+      : 'No 2020 tract found';
+
+    var currentColumn = getActiveColumn();
+    var currentValue = feature.properties[currentColumn];
+
+    var popupHtml = `
+      <div class="tract-popup">
+        <h3>${activeDataset.label}</h3>
+        <p><strong>Current year:</strong> ${activeYear}</p>
+        <p><strong>Current value:</strong> ${formatChartValue(currentValue, activeDataset)}</p>
+        <p class="popup-small">
+          2011–2019 tract: ${geoid2010}<br>
+          2020–2024 tract: ${geoid2020}
+        </p>
+        <canvas id="${chartId}" width="320" height="180"></canvas>
+      </div>
+    `;
+
+    L.popup({
+      maxWidth: 380
+    })
+      .setLatLng(latlng)
+      .setContent(popupHtml)
+      .openOn(mapInstance);
+
+    setTimeout(function() {
+      var canvas = document.getElementById(chartId);
+
+      if (!canvas) {
+        return;
+      }
+
+      if (tractTimeSeriesChart) {
+        tractTimeSeriesChart.destroy();
+      }
+
+      tractTimeSeriesChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: series.years,
+          datasets: [
+            {
+              label: activeDataset.label,
+              data: series.values,
+              tension: 0.25,
+              spanGaps: true,
+              pointRadius: 3
+            }
+          ]
+        },
+        options: {
+          responsive: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return formatChartValue(context.raw, activeDataset);
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                maxRotation: 45,
+                minRotation: 45
+              }
+            },
+            y: {
+              beginAtZero: false
+            }
+          }
+        }
+      });
+    }, 100);
+  });
+}
+
+
 // Style
 function getColor(value) {
   var breaks = activeDataset.scale;
@@ -590,7 +791,14 @@ function styleFeature(feature) {
 function onEachFeature(feature, layer) {
   layer.on({
     mouseover: highlightFeature,
-    mouseout:  resetHighlight,
+    mouseout: resetHighlight,
+    click: function(e) {
+      if (activeDataset && activeDataset.animated) {
+        showTimeSeriesPopup(e.latlng, feature);
+      } else {
+        zoomToFeature(e);
+      }
+    }
   });
 }
 

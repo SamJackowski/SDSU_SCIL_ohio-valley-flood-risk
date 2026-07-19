@@ -15,6 +15,9 @@ The dashboard combines **FEMA National Risk Index** data with **U.S. Census** an
 Users can seamlessly switch between datasets, explore census tract–level information, and gain insights into regional flood exposure and community resilience.
 
 ---
+## Preview 
+
+<img width="1276" height="679" alt="image" src="https://github.com/user-attachments/assets/09c13ec5-22c5-401e-a292-6f70558033ec" />
 
 ## ✨ Features
 

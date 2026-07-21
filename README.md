@@ -26,7 +26,7 @@ Users can seamlessly switch between datasets, explore census tract–level infor
 - Inland Flood Expected Annual Loss
 - Overall Risk Score
 
-### 🏘 Community Vulnerability
+### Community Vulnerability
 - Flood Vulnerability Index
 - Social Vulnerability Score
 - Community Resilience Score

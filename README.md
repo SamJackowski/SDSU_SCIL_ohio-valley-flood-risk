@@ -1,4 +1,4 @@
-# 🌊 Ohio Valley Risk Explorer
+# Ohio Valley Risk Explorer
 
 > **An interactive geospatial dashboard for exploring flood risk, socioeconomic vulnerability, and community resilience across the Ohio River Valley.**
 
@@ -6,7 +6,7 @@ https://samjackowski.github.io/SDSU_SCIL_ohio-valley-flood-risk/
 
 ---
 
-## 📖 Overview
+## Overview
 
 The **Ohio Valley Risk Explorer** is an interactive web-based GIS application designed to visualize and analyze flood risk alongside socioeconomic and demographic indicators across the **Ohio River Valley**.
 

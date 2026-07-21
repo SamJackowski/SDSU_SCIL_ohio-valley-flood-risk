@@ -19,9 +19,9 @@ Users can seamlessly switch between datasets, explore census tract–level infor
 
 <img width="1276" height="679" alt="image" src="https://github.com/user-attachments/assets/09c13ec5-22c5-401e-a292-6f70558033ec" />
 
-## ✨ Features
+## Features
 
-### 🌊 Flood Risk Metrics
+### Flood Risk Metrics
 - Inland Flood Risk Score
 - Inland Flood Expected Annual Loss
 - Overall Risk Score
@@ -31,7 +31,7 @@ Users can seamlessly switch between datasets, explore census tract–level infor
 - Social Vulnerability Score
 - Community Resilience Score
 
-### 📊 Socioeconomic Indicators
+### Socioeconomic Indicators
 - Median Household Income
 - Poverty Rate
 - Employment Rate
@@ -42,7 +42,7 @@ Users can seamlessly switch between datasets, explore census tract–level infor
 - Median Age
 - Households Without Vehicles
 
-### 🗺 Interactive GIS Dashboard
+### Interactive GIS Dashboard
 - Interactive choropleth mapping
 - Census tract-level visualization
 - Dynamic dataset selector
@@ -54,7 +54,7 @@ Users can seamlessly switch between datasets, explore census tract–level infor
 
 ---
 
-## 🗺 Study Area
+## Study Area
 
 The dashboard covers the **Ohio River Valley**, including portions of:
 
@@ -69,7 +69,7 @@ All analyses are performed at the **Census Tract** level.
 
 ---
 
-## 📂 Data Sources
+### Data Sources
 
 - **FEMA National Risk Index**
   - Inland Flood Risk Score
@@ -87,7 +87,7 @@ All analyses are performed at the **Census Tract** level.
 
 ---
 
-## 🛠 Technology Stack
+## Technology Stack
 
 | Technology | Purpose |
 |------------|---------|
@@ -103,7 +103,7 @@ All analyses are performed at the **Census Tract** level.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 Ohio-Valley-Risk-Explorer/
@@ -131,7 +131,7 @@ Ohio-Valley-Risk-Explorer/
 
 ---
 
-## 📊 Available Layers
+## Available Layers
 
 | Category | Variables |
 |----------|-----------|
@@ -144,7 +144,7 @@ Ohio-Valley-Risk-Explorer/
 
 ---
 
-## 🎯 Applications
+## Applications
 
 - Flood risk assessment
 - Urban and regional planning
@@ -156,7 +156,7 @@ Ohio-Valley-Risk-Explorer/
 
 ---
 
-## 🔮 Future Improvements
+## Future Improvements
 
 - Satellite imagery overlays
 - FEMA floodplain visualization
